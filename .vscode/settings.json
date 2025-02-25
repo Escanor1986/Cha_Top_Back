@@ -1,4 +1,15 @@
 {
-	"java.configuration.updateBuildConfiguration": "interactive",
-	"java.compile.nullAnalysis.mode": "automatic"
+	"java.configuration.updateBuildConfiguration": "automatic",
+	"java.compile.nullAnalysis.mode": "automatic",
+	"maven.showInExplorerContextMenu": "true",
+	"maven.terminal.customEnv": {
+		"JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64"
+	},
+	"maven.terminal.useJavaHome": true,
+	"maven.view": "hierarchical",
+	"workbench.editor.enablePreview": true,
+	"workbench.editor.enablePreviewFromQuickOpen": true,
+	"workbench.editor.showTabs": "multiple",
+	"workbench.editor.tabSizing": "fit",
+	"workbench.editor.tabActionLocation": "right"
 }

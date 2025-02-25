@@ -30,6 +30,11 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+        <!-- Spring Boot Web pour créer les controllers -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
     <!-- Spring Boot JPA pour gérer la base de données -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -58,7 +63,12 @@
     <scope>runtime</scope>
 </dependency>
 
-
+    <!-- JWT pour l’authentification -->
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.6</version>
+</dependency>
     <!-- Validation des entrées -->
     <dependency>
         <groupId>org.springframework.boot</groupId>

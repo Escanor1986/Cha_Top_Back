@@ -30,11 +30,11 @@
     │           ├─ controller   # Contrôleurs REST
     │           ├─ service      # Services (business logic)
     │           ├─ repository   # Gestion des accès DB (JPA)
-    │           └─ models       # Entités JPA
+    │           ├─ models       # Entités JPA
     ├─ resources
     │   └─ application.properties  # Configuration Spring Boot
     ├─ src/main/docker
-    │   ├─ docker-compose.yaml  # Configuration Docker Compose
+    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL uniquement)
     │   └─ init
     │       └─ init.sql  # Script d'initialisation MySQL
     ├─ pom.xml       # Dépendances Maven
@@ -56,7 +56,7 @@ Assurez-vous d’avoir :
 
 ---
 
-### 📌 **2️⃣ Lancer le projet avec Docker**
+### 📌 **2️⃣ Lancer la base de données MySQL avec Docker**
 
 ```sh
 docker compose up -d  # Démarre MySQL dans un conteneur
@@ -153,3 +153,4 @@ mvn test  # Exécuter les tests
 ---
 
 💡 **Besoin d'aide ?** Ouvre une issue ou ping-moi sur **GitHub**. 🚀🔥
+
