@@ -8,23 +8,43 @@ Elle est développée en **Java + Spring Boot** et utilise **MySQL** pour la bas
 
 ---
 
-## 📂 2. Structure du Projet
+## 📂 **Structure du Projet**
 
-L’application suit une **architecture en couches** :
+L'application suit une architecture en couches, organisée comme suit :
 
+```sh
+src 
+ └── main 
+  └── java 
+   └── com 
+    └── chatop 
+     └── chatop_backend 
+      ├── controller 
+      │ └── AuthController.java 
+      ├── service 
+      │ └── AuthService.java 
+      ├── repository 
+      │ └── UserRepository.java 
+      ├── model 
+      │ └── User.java 
+      └── security 
+        ├── JwtTokenProvider.java 
+        ├── JwtAuthenticationFilter.java 
+        ├── SecurityConfig.java 
+        └── CustomUserDetailsService.java
 ```
 
-📁 src/main/java/com/chatop
-│── 📁 config        → Configuration (Spring Security, JWT, etc.)
-│── 📁 controller    → Gestion des requêtes HTTP (API REST)
-│── 📁 dto           → Objets de transfert de données (Data Transfer Objects)
-│── 📁 model         → Classes représentant les entités (User, Rental, Message)
-│── 📁 repository    → Accès aux données (JPA Repositories)
-│── 📁 service       → Logique métier
-│── 📁 util          → Classes utilitaires (gestion JWT, validation, etc.)
-│── 📄 ChatopBackendApplication.java → Classe principale de l'application
+### 📌 **Détails des packages :**
 
-```
+- **`controller/`** : Contient les classes gérant les requêtes HTTP entrantes, comme `AuthController` pour les opérations d'authentification.
+- **`service/`** : Inclut la logique métier, par exemple `AuthService` pour gérer les opérations liées à l'authentification.
+- **`repository/`** : Gère l'accès aux données, avec des interfaces comme `UserRepository` pour interagir avec la base de données des utilisateurs.
+- **`model/`** : Définit les entités de votre application, telles que `User`.
+- **`security/`** : Contient les classes spécifiques à la sécurité, notamment :
+  - **`JwtTokenProvider.java`** : Gère la création et la validation des tokens JWT.
+  - **`JwtAuthenticationFilter.java`** : Filtre les requêtes HTTP pour traiter les tokens JWT.
+  - **`SecurityConfig.java`** : Configure les aspects de sécurité de l'application.
+  - **`CustomUserDetailsService.java`** : Charge les détails de l'utilisateur lors de l'authentification.
 
 ---
 

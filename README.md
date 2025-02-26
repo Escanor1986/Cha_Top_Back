@@ -21,7 +21,7 @@
 
 ## 👤 **Structure du projet**
 
-```
+```sh
 📺 chatop-backend
  └─ src
     ├─ main

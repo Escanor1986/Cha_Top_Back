@@ -11,5 +11,6 @@
 	"workbench.editor.enablePreviewFromQuickOpen": true,
 	"workbench.editor.showTabs": "multiple",
 	"workbench.editor.tabSizing": "fit",
-	"workbench.editor.tabActionLocation": "right"
+	"workbench.editor.tabActionLocation": "right",
+	"gitlens.views.repositories.showIncomingActivity": true,
 }
