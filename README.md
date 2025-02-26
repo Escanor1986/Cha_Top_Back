@@ -21,7 +21,7 @@
 
 ## 👤 **Structure du projet**
 
-``` 
+```
 📺 chatop-backend
  └─ src
     ├─ main
@@ -30,23 +30,25 @@
     │           ├─ controller   # Contrôleurs REST
     │           ├─ service      # Services (business logic)
     │           ├─ repository   # Gestion des accès DB (JPA)
-    │           ├─ models       # Entités JPA
+    │           └─ models       # Entités JPA
     ├─ resources
     │   └─ application.properties  # Configuration Spring Boot
     ├─ src/main/docker
-    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL uniquement)
+    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL only for test)
     │   └─ init
     │       └─ init.sql  # Script d'initialisation MySQL
+    |─ docker-compose.yaml  # Configuration Docker Compose (MySQL + App)
+    ├─ Dockerfile     # Build et exécution du projet dans Docker
     ├─ pom.xml       # Dépendances Maven
     ├─ mvnw          # Wrapper Maven
-    ├─ README.md     # La doc du projet
+    └─ README.md     # La doc du projet
 ```
 
 ---
 
 ## 🛠️ **Installation & Configuration**
 
-### 📌 **1️⃣ Prérequis**
+### 📌 **1⃣ Prérequis**
 
 Assurez-vous d’avoir :  
 ✅ **[Docker](https://www.docker.com/get-started/)** installé et fonctionnel  
@@ -56,39 +58,18 @@ Assurez-vous d’avoir :
 
 ---
 
-### 📌 **2️⃣ Lancer la base de données MySQL avec Docker**
+### 📌 **2⃣ Lancer l'application et la base de données avec Docker**
 
 ```sh
-docker compose up -d  # Démarre MySQL dans un conteneur
+docker compose up --build -d  # Build & Démarre l'application et MySQL dans Docker
 ```
 
-📌 **Vérifier que MySQL tourne bien**  
+📌 **Vérifier que tout fonctionne**  
 
 ```sh
-docker ps | grep mysql  # Vérifier que le conteneur MySQL est actif
-docker logs chatop-mysql  # Voir les logs du conteneur
-```
-
-📌 **Se connecter à MySQL via Docker**  
-
-```sh
-docker exec -it chatop-mysql mysql -u chatopuser -p
-```
-
-(Mot de passe : `chatoppass`)
-
----
-
-### 📌 **3️⃣ Lancer l'application Spring Boot**
-
-```sh
-./mvnw spring-boot:run  # Si Maven Wrapper est utilisé
-```
-
-ou
-
-```sh
-mvn spring-boot:run  # Si Maven est installé
+docker ps  # Voir les conteneurs actifs
+docker logs -f chatop-app  # Logs de l'application Spring Boot
+docker logs -f chatop-mysql  # Logs de MySQL
 ```
 
 📌 **Tester l'API de base (`HealthCheck`)**  
@@ -97,7 +78,7 @@ mvn spring-boot:run  # Si Maven est installé
 curl -X GET http://localhost:8080/api/health
 ```
 
-🔹 Devrait retourner : `{ "status": "OK" }`  
+🔹 Devrait retourner `{ "status": "OK" }`  
 
 📌 **Vérifier que Swagger est en place**  
 👉 **[Swagger UI](http://localhost:8080/swagger-ui.html)**
@@ -115,6 +96,11 @@ docker logs -f chatop-mysql  # Suivre les logs de MySQL
 ```
 
 ### 📌 **Base de données**
+
+<!-- rentrer le password <chatoppass> et tester la DB -->
+```sh
+docker exec -it chatop-mysql mysql -u chatopuser -p 
+```
 
 ```sh
 SHOW DATABASES;  # Vérifier les bases disponibles
@@ -153,4 +139,3 @@ mvn test  # Exécuter les tests
 ---
 
 💡 **Besoin d'aide ?** Ouvre une issue ou ping-moi sur **GitHub**. 🚀🔥
-

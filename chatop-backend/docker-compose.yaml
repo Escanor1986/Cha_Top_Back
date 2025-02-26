@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8
+    container_name: chatop-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: chatop
+      MYSQL_USER: chatopuser
+      MYSQL_PASSWORD: chatoppass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/docker/init:/docker-entrypoint-initdb.d/
+    networks:
+      - chatop-network
+
+  app:
+    build:
+      context: .  # Utilise le Dockerfile situé à la racine
+      dockerfile: Dockerfile
+    container_name: chatop-app
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/chatop?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: chatopuser
+      SPRING_DATASOURCE_PASSWORD: chatoppass
+    ports:
+      - "8080:8080"
+    networks:
+      - chatop-network
+
+volumes:
+  mysql_data:
+
+networks:
+  chatop-network:
+    driver: bridge
