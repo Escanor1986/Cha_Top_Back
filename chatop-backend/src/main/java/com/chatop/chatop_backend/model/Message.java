@@ -21,24 +21,24 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Message {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "rental_id", nullable = false)
-    private Rental rental;
+  @ManyToOne
+  @JoinColumn(name = "rental_id", nullable = false) // Clé étrangère vers Rental
+  private Rental rental;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+  @OneToOne 
+  @JoinColumn(name = "user_id", nullable = false) // Clé étrangère vers User
+  private User user;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String message;
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String message;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 }

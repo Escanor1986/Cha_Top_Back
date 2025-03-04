@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @Entity: Spécifie que la classe est une entité.
@@ -21,22 +22,26 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String name;
+  @Column(nullable = false)
+  private String name;
 
-    @Column(nullable = false)
-    private String password;
+  @Column(nullable = false)
+  private String password;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  // Relation avec les Rentals
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Rental> rentals;
 }

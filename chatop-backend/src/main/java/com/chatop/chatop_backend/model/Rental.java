@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @Entity: Spécifie que la classe est une entité.
@@ -22,32 +23,35 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Rental {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String name;
+  @Column(nullable = false)
+  private String name;
 
-    @Column(nullable = false)
-    private BigDecimal surface;
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal surface;
 
-    @Column(nullable = false)
-    private BigDecimal price;
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal price;
 
-    @Column
-    private String picture;
+  private String picture;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+  @Column(columnDefinition = "TEXT")
+  private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+  @ManyToOne
+  @JoinColumn(name = "owner_id", nullable = false) // Clé étrangère vers User
+  private User owner;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  // Relation avec Messages
+  @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Message> messages;
 }
