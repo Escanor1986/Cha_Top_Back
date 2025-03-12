@@ -60,7 +60,7 @@ public class JwtService {
     }
 
     /**
-     * Vérifie si un token JWT est valide pour un utilisateur donné.
+     * Vérifie si un token JWT est valide pour un utilisateur donné en utilisant les détails de l'utilisateur et la clé secrète. la clé secret est définie dans le fichier application.properties.
      *
      * @param token Token JWT à vérifier
      * @param userDetails Détails de l'utilisateur

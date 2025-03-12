@@ -49,6 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        
+        //! Log de debogage pour l'en-tête Authorization
+        // System.out.println("Authorization: " + authHeader);
 
         // Extrait le token JWT (en supprimant le préfixe "Bearer ")
         jwt = authHeader.substring(7);

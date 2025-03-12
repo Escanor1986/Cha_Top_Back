@@ -50,15 +50,19 @@ public class SecurityConfig {
      *
      * @param http Configuration de la sécurité HTTP
      * @return Chaîne de filtres de sécurité configurée
+     * @Bean indique que cette méthode produit un bean à utiliser dans l'application. un bean est un objet qui est instancié, assemblé et géré par un conteneur IoC (Inversion of Control). Il sert de composant dans le développement d'applications. un conteneur IoC est un cadre logiciel qui gère les beans.
+     * @throws Exception si une erreur se produit lors de la configuration de la sécurité
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        http        
+                .csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF. CSRF signifie Cross-Site Request Forgery. Il s'agit d'une attaque qui force un utilisateur à exécuter des actions non désirées sur une application Web dans laquelle il est authentifié.
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
                 .authorizeHttpRequests(auth -> auth
                         // Chemins publics qui ne nécessitent pas d'authentification
                         .requestMatchers(
+                                "/", // Chemin racine pour rediriger vers Swagger UI
+                                "/healthcheck",
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -67,11 +71,11 @@ public class SecurityConfig {
                         // Tous les autres chemins nécessitent une authentification
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Désactive la gestion de session pour que Spring Security ne crée pas de session HTTP
+                .authenticationProvider(authenticationProvider()) // Configure le fournisseur d'authentification qui vérifie les identifiants de l'utilisateur
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // Ajoute le filtre d'authentification JWT avant le filtre d'authentification par nom d'utilisateur et mot de passe
 
-        return http.build();
+        return http.build(); // Construit la chaîne de filtres de sécurité configurée et la retourne pour être utilisée dans l'application.
     }
 
     /**
@@ -91,7 +95,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Fournit un encodeur de mot de passe pour hacher les mots de passe.
+     * Fournit un encodeur de mot de passe pour hacher les mots de passe avec un bean pour n'avoir qu'une seule instance dans l'application.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

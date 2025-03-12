@@ -48,12 +48,12 @@ public class AuthService {
 
         // Crée un nouvel utilisateur
         var user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+                .name(request.getName())// Récupère le nom
+                .email(request.getEmail()) // Récupère l'email
+                .password(passwordEncoder.encode(request.getPassword())) // Hache le mot de passe
+                .createdAt(LocalDateTime.now()) // Récupère la date de création
+                .updatedAt(LocalDateTime.now()) // Récupère la date de mise à jour
+                .build(); // Construit l'utilisateur
         
         // Sauvegarde l'utilisateur
         userRepository.save(user);

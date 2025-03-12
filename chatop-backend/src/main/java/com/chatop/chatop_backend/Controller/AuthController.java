@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "APIs pour l'authentification et l'enregistrement")
-@CrossOrigin(origins = "*") // À ajuster selon vos besoins de sécurité
+@CrossOrigin(origins = "*") // À ajuster
 public class AuthController {
 
     private final AuthService authService;

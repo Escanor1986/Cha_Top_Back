@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     /**
-     * Charge les détails de l'utilisateur à partir de son email.
+     * Charge les détails de l'utilisateur à partir de son email pour l'authentification et l'autorisation. il s'agit d'une méthode de l'interface UserDetailsService de Spring Security.
      *
      * @param email Email de l'utilisateur
      * @return Détails de l'utilisateur
