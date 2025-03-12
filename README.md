@@ -27,21 +27,24 @@
     ├─ main
     │   └─ java
     │       └─ com.chatop
-    │           ├─ controller   # Contrôleurs REST
-    │           ├─ service      # Services (business logic)
-    │           ├─ repository   # Gestion des accès DB (JPA)
-    │           └─ models       # Entités JPA
+    │           ├─ controller   # Contrôleurs REST (auth, utilisateurs, ...)
+    │           ├─ service      # Services (logique métier)
+    │           ├─ repository   # Accès à la base de données (JPA)
+    │           ├─ config       # Configuration (sécurité, CORS, etc.)
+    │           ├─ exception    # Gestion des erreurs personnalisées
+    │           ├─ model        # Entités JPA (User, Rental, Message, etc.)
+    │           └─ security     # JWT et filtres d'authentification
     ├─ resources
     │   └─ application.properties  # Configuration Spring Boot
     ├─ src/main/docker
-    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL only for test)
+    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL uniquement pour test)
     │   └─ init
     │       └─ init.sql  # Script d'initialisation MySQL
-    |─ docker-compose.yaml  # Configuration Docker Compose (MySQL + App)
+    │─ docker-compose.yaml  # Configuration Docker Compose pour l'app et la DB
     ├─ Dockerfile     # Build et exécution du projet dans Docker
-    ├─ pom.xml       # Dépendances Maven
-    ├─ mvnw          # Wrapper Maven
-    └─ README.md     # La doc du projet
+    ├─ pom.xml        # Dépendances Maven
+    ├─ mvnw           # Maven Wrapper
+    └─ README.md      # Documentation du projet
 ```
 
 ---
@@ -54,34 +57,35 @@ Assurez-vous d’avoir :
 ✅ **[Docker](https://www.docker.com/get-started/)** installé et fonctionnel  
 ✅ **[Java 17](https://adoptopenjdk.net/)** installé  
 ✅ **[Maven](https://maven.apache.org/download.cgi)** installé  
-✅ **[VS Code](https://code.visualstudio.com/)** avec l’extension **Database Client** (optionnel)  
+✅ (Optionnel) **[VS Code](https://code.visualstudio.com/)** avec l’extension **Database Client**
 
 ---
 
 ### 📌 **2⃣ Lancer l'application et la base de données avec Docker**
 
 ```sh
-docker compose up --build -d  # Build & Démarre l'application et MySQL dans Docker
+docker compose up --build -d  # Build & démarre l'application et MySQL dans Docker
 ```
 
 📌 **Vérifier que tout fonctionne**  
 
 ```sh
 docker ps  # Voir les conteneurs actifs
-docker logs -f chatop-app  # Logs de l'application Spring Boot
-docker logs -f chatop-mysql  # Logs de MySQL
+docker logs -f chatop-app  # Suivre les logs de l'application Spring Boot
+docker logs -f chatop-mysql  # Suivre les logs de MySQL
 ```
 
 📌 **Tester l'API de base (`HealthCheck`)**  
 
 ```sh
-curl -X GET http://localhost:8080/api/health
+curl -X GET http://localhost:3001/api/health
 ```
 
 🔹 Devrait retourner `{ "status": "OK" }`  
 
 📌 **Vérifier que Swagger est en place**  
-👉 **[Swagger UI](http://localhost:8080/swagger-ui.html)**
+👉 **[Swagger UI](http://localhost:3001/swagger-ui.html)**  
+> **Remarque :** Dans certaines configurations, l'URL peut être `http://localhost:3001/swagger-ui/index.html`.
 
 ---
 
@@ -90,52 +94,60 @@ curl -X GET http://localhost:8080/api/health
 ### 📌 **Gestion des conteneurs Docker**
 
 ```sh
-docker compose down -v  # Supprime les conteneurs et les volumes
-docker compose up -d --build  # Rebuild & démarre les services
-docker logs -f chatop-mysql  # Suivre les logs de MySQL
+docker compose down -v         # Supprime les conteneurs et les volumes
+docker compose up -d --build     # Rebuild & démarre les services
+docker logs -f chatop-mysql      # Suivre les logs de MySQL
 ```
 
 ### 📌 **Base de données**
 
-<!-- rentrer le password <chatoppass> et tester la DB -->
 ```sh
 docker exec -it chatop-mysql mysql -u chatopuser -p 
 ```
 
-```sh
+```sql
 SHOW DATABASES;  # Vérifier les bases disponibles
-USE chatop;  # Sélectionner la base de données
-SHOW TABLES;  # Voir les tables existantes
+USE chatop;      # Sélectionner la base de données
+SHOW TABLES;     # Voir les tables existantes
 ```
 
 ### 📌 **Gestion du backend**
 
 ```sh
-mvn clean install  # Build complet de l'application
-mvn test  # Exécuter les tests
+mvn clean install   # Build complet de l'application
+mvn test            # Exécuter les tests
 ```
 
 ---
 
 ## 📝 **API Routes (Première version)**
 
-| Méthode | Endpoint            | Description                |
-|---------|---------------------|----------------------------|
-| GET     | `/api/health`       | Vérifier si l'API répond  |
-| GET     | `/swagger-ui.html`  | Accès à la doc API        |
+| Méthode | Endpoint                  | Description                                              |
+|---------|---------------------------|----------------------------------------------------------|
+| GET     | `/api/health`             | Vérifie que l'API répond                                |
+| POST    | `/api/auth/register`      | Enregistre un nouvel utilisateur (auth/register)         |
+| POST    | `/api/auth/login`         | Authentifie un utilisateur (auth/login)                  |
+| GET     | `/api/auth/me`            | Récupère les infos de l'utilisateur authentifié          |
+| GET     | `/swagger-ui.html`        | Accès à la documentation Swagger                         |
 
-📌 **D'autres endpoints seront ajoutés au fur et à mesure !**  
+> **Note :**  
+> Les endpoints pour **rentals** et **messages** ne sont pas encore implémentés côté logique métier. Seules les entités/model existent pour ces fonctionnalités. Ces endpoints seront ajoutés dans les prochaines versions.
 
 ---
 
 ## 🔥 **Prochaines étapes**
 
-✅ Ajouter la gestion des utilisateurs (Auth JWT)  
-✅ Implémenter les endpoints CRUD des annonces de location  
-✅ Sécuriser les routes avec **Spring Security**  
-
-👨‍💻 **Contribuer** : Clone et fork le projet, et let's go ! 🚀
+- ✅ Finaliser l'implémentation de l'authentification (register, login, me) avec JWT  
+- 🔜 **Implémenter la logique métier pour les locations (rentals)**  
+- 🔜 **Implémenter la logique métier pour les messages**  
+- 🔜 Sécuriser et tester l'ensemble des endpoints avec Spring Security  
 
 ---
 
-💡 **Besoin d'aide ?** Ouvre une issue ou ping-moi sur **GitHub**. 🚀🔥
+👨‍💻 **Contribuer** :  
+Clone et fork le projet, puis soumets tes pull requests pour améliorer et ajouter de nouvelles fonctionnalités ! 🚀
+
+💡 **Besoin d'aide ?**  
+Ouvre une issue ou contacte-moi sur **GitHub**.
+
+---
