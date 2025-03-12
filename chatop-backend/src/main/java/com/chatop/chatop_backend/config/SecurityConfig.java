@@ -25,6 +25,17 @@ import java.util.Arrays;
 
 /**
  * Configuration de Spring Security pour l'application.
+ * Cette classe configure la sécurité HTTP et les filtres d'authentification.
+ * Elle définit les chemins publics et privés, les fournisseurs
+ * d'authentification et les encodeurs de mot de passe.
+ * Elle configure également CORS pour permettre les requêtes cross-origin.
+ * 
+ * @Configuration indique que cette classe contient des méthodes de
+ *                configuration.
+ * @EnableWebSecurity active la sécurité Web pour l'application.
+ * @RequiredArgsConstructor génère un constructeur avec tous les champs en
+ *                          lecture seule.
+ * @see com.chatop.chatop_backend.security.JwtAuthenticationFilter
  */
 @Configuration
 @EnableWebSecurity
@@ -43,24 +54,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                // Chemins publics qui ne nécessitent pas d'authentification
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
-                ).permitAll()
-                // Tous les autres chemins nécessitent une authentification
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        // Chemins publics qui ne nécessitent pas d'authentification
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html")
+                        .permitAll()
+                        // Tous les autres chemins nécessitent une authentification
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -71,11 +80,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Ajustez pour votre frontend Angular
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -90,7 +99,8 @@ public class SecurityConfig {
     }
 
     /**
-     * Configure le fournisseur d'authentification qui vérifie les identifiants de l'utilisateur.
+     * Configure le fournisseur d'authentification qui vérifie les identifiants de
+     * l'utilisateur.
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
