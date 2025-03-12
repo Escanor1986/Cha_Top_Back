@@ -12,14 +12,12 @@ import java.util.List;
 /**
  * Représente un utilisateur de l'application, stocké dans la base de données.
  * Cette classe implémente {@link UserDetails} pour être compatible avec Spring Security.
- * <br>
- * UserDetails est une interface qui fournit des informations sur l'utilisateur.
- * Elle est utilisée par Spring Security pour effectuer l'authentification et l'autorisation.
  */
 @Entity
 @Table(name = "USERS")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
@@ -70,8 +68,6 @@ public class User implements UserDetails {
 
     /**
      * Récupère les rôles et autorisations de l'utilisateur.
-     * <br>
-     * Actuellement, aucun rôle spécifique n'est géré, donc cette méthode renvoie une liste vide.
      *
      * @return Liste des autorités accordées à l'utilisateur.
      */
@@ -82,8 +78,6 @@ public class User implements UserDetails {
 
     /**
      * Récupère le nom d'utilisateur utilisé par Spring Security pour l'authentification.
-     * <br>
-     * Dans notre cas, nous utilisons l'email comme identifiant.
      *
      * @return L'email de l'utilisateur.
      */
@@ -94,9 +88,6 @@ public class User implements UserDetails {
 
     /**
      * Indique si le compte de l'utilisateur a expiré.
-     * <br>
-     * Si un compte expire, l'utilisateur ne peut plus se connecter.
-     * Ici, nous considérons que les comptes n'expirent jamais.
      *
      * @return `true` si le compte est valide.
      */
@@ -107,9 +98,6 @@ public class User implements UserDetails {
 
     /**
      * Indique si le compte est verrouillé.
-     * <br>
-     * Un compte verrouillé empêche l'utilisateur de se connecter.
-     * Ici, nous considérons que les comptes ne sont jamais verrouillés.
      *
      * @return `true` si le compte est actif.
      */
@@ -120,9 +108,6 @@ public class User implements UserDetails {
 
     /**
      * Indique si les informations d'authentification de l'utilisateur ont expiré.
-     * <br>
-     * Si elles expirent, l'utilisateur doit renouveler son mot de passe.
-     * Ici, nous considérons que les mots de passe n'expirent jamais.
      *
      * @return `true` si les informations sont valides.
      */
@@ -133,9 +118,6 @@ public class User implements UserDetails {
 
     /**
      * Indique si l'utilisateur est activé et peut s'authentifier.
-     * <br>
-     * Cette méthode permettrait de gérer des comptes désactivés par l'administrateur.
-     * Ici, nous considérons que tous les comptes sont actifs.
      *
      * @return `true` si l'utilisateur est actif.
      */
