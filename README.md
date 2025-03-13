@@ -22,29 +22,53 @@
 ## 👤 **Structure du projet**
 
 ```sh
-📺 chatop-backend
- └─ src
-    ├─ main
-    │   └─ java
-    │       └─ com.chatop
-    │           ├─ controller   # Contrôleurs REST (auth, utilisateurs, ...)
-    │           ├─ service      # Services (logique métier)
-    │           ├─ repository   # Accès à la base de données (JPA)
-    │           ├─ config       # Configuration (sécurité, CORS, etc.)
-    │           ├─ exception    # Gestion des erreurs personnalisées
-    │           ├─ model        # Entités JPA (User, Rental, Message, etc.)
-    │           └─ security     # JWT et filtres d'authentification
-    ├─ resources
-    │   └─ application.properties  # Configuration Spring Boot
-    ├─ src/main/docker
-    │   ├─ docker-compose.yaml  # Configuration Docker Compose (MySQL uniquement pour test)
-    │   └─ init
-    │       └─ init.sql  # Script d'initialisation MySQL
-    │─ docker-compose.yaml  # Configuration Docker Compose pour l'app et la DB
-    ├─ Dockerfile     # Build et exécution du projet dans Docker
-    ├─ pom.xml        # Dépendances Maven
-    ├─ mvnw           # Maven Wrapper
-    └─ README.md      # Documentation du projet
+📺 chatop-backend/
+├─ Dockerfile                     # Dockerfile pour builder l'application
+├─ docker-compose.yaml            # Fichier Compose (à la racine) pour lancer les services (db, app, vault, vault-init)
+├─ pom.xml                        # Fichier Maven définissant les dépendances et la configuration
+├─ vault-init.sh                  # Script d'initialisation de Vault (placé à la racine)
+└─ src/
+    └─ main/
+        ├─ java/
+        │   └─ com/
+        │       └─ chatop/
+        │           ├─ config/
+        │           │   └─ SecurityConfig.java     # Configuration de Spring Security et beans associés
+        │           ├─ controller/
+        │           │   ├─ AuthController.java       # Contrôleur pour l'authentification (register, login, me)
+        │           │   ├─ RentalController.java       # (À implémenter pour les rentals)
+        │           │   └─ MessageController.java      # (À implémenter pour les messages)
+        │           ├─ dto/
+        │           │   ├─ AuthResponse.java           # DTO pour la réponse d'authentification
+        │           │   ├─ LoginRequest.java           # DTO pour la requête de connexion
+        │           │   ├─ RegisterRequest.java        # DTO pour la requête d'enregistrement
+        │           │   ├─ UserDto.java                # DTO pour l'utilisateur (utilisé par /me et UserController)
+        │           │   ├─ RentalDto.java              # DTO pour les rentals (à implémenter)
+        │           │   └─ MessageDto.java             # DTO pour les messages (à implémenter)
+        │           ├─ exception/
+        │           │   └─ AuthException.java          # Exception personnalisée pour l'authentification
+        │           ├─ model/
+        │           │   ├─ User.java                   # Entité utilisateur
+        │           │   ├─ Rental.java                 # Entité rental (à implémenter)
+        │           │   └─ Message.java                # Entité message (à implémenter)
+        │           ├─ repository/
+        │           │   ├─ UserRepository.java         # Accès aux données utilisateur
+        │           │   ├─ RentalRepository.java       # Accès aux données des rentals
+        │           │   └─ MessageRepository.java      # Accès aux données des messages
+        │           ├─ security/
+        │           │   ├─ JwtAuthenticationFilter.java  # Filtre pour vérifier les JWT sur chaque requête
+        │           │   ├─ JwtService.java                 # Service pour générer et valider les tokens JWT
+        │           │   └─ CustomUserDetailsService.java   # Service pour charger les détails d'un utilisateur
+        │           └─ service/
+        │               ├─ AuthService.java             # Service gérant l'enregistrement et la connexion
+        │               ├─ RentalService.java           # Interface pour la logique métier des rentals (à implémenter)
+        │               ├─ RentalServiceImpl.java       # Implémentation de RentalService (à implémenter)
+        │               ├─ MessageService.java          # Interface pour la logique métier des messages (à implémenter)
+        │               └─ MessageServiceImpl.java      # Implémentation de MessageService (à implémenter)
+        └─ resources/
+            ├─ application.properties    # Configuration Spring Boot (port, JPA, Swagger, etc.)
+            └─ bootstrap.yaml            # Configuration de Spring Cloud Vault (et potentiellement Config Server)
+
 ```
 
 ---
