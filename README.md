@@ -12,8 +12,9 @@
 ## ⚙️ **Tech Stack**
 
 - **Backend** : Spring Boot 3.4.3 (Java 17)  
-- **Base de données** : MySQL 8.0  
+- **Base de données** : MySQL 8.2.0  
 - **Sécurité** : Spring Security + JWT  
+- **Secrets & Configuration** : Spring Cloud Vault avec HashiCorp Vault
 - **Conteneurisation** : Docker & Docker Compose  
 - **Documentation API** : Swagger  
 
@@ -27,6 +28,9 @@
 ├─ docker-compose.yaml            # Fichier Compose (à la racine) pour lancer les services (db, app, vault, vault-init)
 ├─ pom.xml                        # Fichier Maven définissant les dépendances et la configuration
 ├─ vault-init.sh                  # Script d'initialisation de Vault (placé à la racine)
+├─ .gitignore
+├─ .gitattributes
+├─ mvnw.cmd  
 └─ src/
     └─ main/
         ├─ java/
@@ -85,10 +89,29 @@ Assurez-vous d’avoir :
 
 ---
 
-### 📌 **2⃣ Lancer l'application et la base de données avec Docker**
+### 📌 **2⃣ Lancer l'application avec Docker Compose**
+
+Le fichier docker-compose.yaml intègre désormais les services suivants :
+
+- **db** : Base de données MySQL
+- **vault** : Service Vault (HashiCorp) avec healthcheck utilisant `vault status`
+- **vault-init** : Service d'initialisation pour charger les secrets dans Vault
+- **app** : Application Spring Boot configurée pour utiliser Spring Cloud Vault
+
+Pour lancer l'ensemble des services, vous pouvez exécuter la commande suivante :
 
 ```sh
 docker compose up --build -d  # Build & démarre l'application et MySQL dans Docker
+```
+
+`Note` : Assurez-vous que les variables d’environnement soient correctement définies dans votre environnement ou dans un fichier .env.
+
+```env
+MYSQL_DATABASE=
+MYSQL_USER=
+MYSQL_PASSWORD=
+MYSQL_ROOT_PASSWORD=
+VAULT_TOKEN=
 ```
 
 #### ⚠️ **Problème fréquent lors du build avec Docker Desktop**
@@ -161,6 +184,27 @@ curl -X GET http://localhost:3001/api/health
 
 ---
 
+### 🔒 **Intégration de Spring Cloud Vault**
+
+- **bootstrap.yaml :**
+Contient la configuration Spring Cloud Vault pour lire les secrets stockés dans Vault (ex. : configuration JWT, accès à la base de données, etc.).
+
+- **vault-init.sh :**
+Script qui initialise Vault, active le moteur de secrets (KV) et charge les secrets et policies requis par l’application.
+
+- **docker-compose.yml :**
+Les services vault et vault-init ont été ajoutés/modifiés pour supporter l’intégration.
+Le service vault déclare notamment :
+
+- ```VAULT_DEV_ROOT_TOKEN_ID``` pour définir le token racine
+- ```VAULT_DEV_LISTEN_ADDRESS``` pour le binding
+- Un healthcheck basé sur la commande vault status
+Le service vault-init dépend de Vault et exécute le script d'initialisation lors de son démarrage.
+
+`Conseil` : En environnement de développement, Vault fonctionne en mode "dev" (en mémoire et non sécurisé pour la production).
+
+---
+
 ## 🚀 **Commandes utiles**
 
 ### 📌 **Gestion des conteneurs Docker**
@@ -213,6 +257,7 @@ mvn test            # Exécuter les tests
 - 🔜 **Implémenter la logique métier pour les locations (rentals)**  
 - 🔜 **Implémenter la logique métier pour les messages**  
 - 🔜 Sécuriser et tester l'ensemble des endpoints avec Spring Security  
+- 🔜 Envisager la gestion de Vault en production (configuration sécurisée, stockage persistant, etc.)  
 
 ---
 
