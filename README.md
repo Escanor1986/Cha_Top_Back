@@ -67,6 +67,54 @@ Assurez-vous d’avoir :
 docker compose up --build -d  # Build & démarre l'application et MySQL dans Docker
 ```
 
+#### ⚠️ **Problème fréquent lors du build avec Docker Desktop**
+
+```sh
+docker compose up --build -d
+```
+
+```sh
+ => ERROR [app internal] load metadata for docker.io/library/maven:3.8.4-openjdk-17                                                                                                                       0.4s
+ => ERROR [app internal] load metadata for docker.io/library/openjdk:17-jdk-slim                                                                                                                          0.4s
+------
+ > [app internal] load metadata for docker.io/library/maven:3.8.4-openjdk-17:
+------
+------
+ > [app internal] load metadata for docker.io/library/openjdk:17-jdk-slim:
+------
+failed to solve: maven:3.8.4-openjdk-17: failed to resolve source metadata for docker.io/library/maven:3.8.4-openjdk-17: error getting credentials - err: exec: "docker-credential-desktop": executable file not found in $PATH, out: ``
+```
+
+#### 🧞‍♂️ **Problématique et solution**
+
+Cela signifie que Docker ne parvient pas à trouver l'exécutable "docker-credential-desktop" pour obtenir les informations d'identification pour les images Maven/OpenJDK.
+
+Il faut pour cela modifier le fichier config.json de Docker.
+
+```sh
+nano ~/.docker/config.json
+```
+
+✂️ **remplacer :**
+
+```json
+"credsStore": "desktop"
+````
+
+⚒️ **par :**
+
+```json
+"credsStore": ""
+```
+
+En désactivant l'utilisation d'un "credential store" qui pointe vers "desktop".
+
+🔁 **Rebuild l'application :**
+
+```sh
+docker compose up --build -d
+```
+
 📌 **Vérifier que tout fonctionne**  
 
 ```sh
