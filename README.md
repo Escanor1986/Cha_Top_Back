@@ -1,7 +1,7 @@
 # 🏡 Chatop Backend - API de location saisonnière  
 
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.3-brightgreen?logo=springboot)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?logo=mysql)
+![MySQL](https://img.shields.io/badge/MySQL-8.2.0-blue?logo=mysql)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)
 ![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)
 ![Maven](https://img.shields.io/badge/Maven-Build-red?logo=apachemaven)
