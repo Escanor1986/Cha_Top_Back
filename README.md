@@ -242,15 +242,20 @@ mvn test            # Exécuter les tests
 
 ---
 
-## 📝 **API Routes (Première version)**
+## 🚀 API Routes mises à jour
 
-| Méthode | Endpoint                  | Description                                              |
-|---------|---------------------------|----------------------------------------------------------|
-| GET     | `/api/health`             | Vérifie que l'API répond                                |
-| POST    | `/api/auth/register`      | Enregistre un nouvel utilisateur (auth/register)         |
-| POST    | `/api/auth/login`         | Authentifie un utilisateur (auth/login)                  |
-| GET     | `/api/auth/me`            | Récupère les infos de l'utilisateur authentifié          |
-| GET     | `/swagger-ui.html`        | Accès à la documentation Swagger                         |
+| Méthode | Endpoint               | Description                                      |
+|---------|------------------------|--------------------------------------------------|
+| GET     | `/api/health`          | Vérifie que l'API répond                        |
+| POST    | `/api/auth/register`   | Enregistre un nouvel utilisateur                |
+| POST    | `/api/auth/login`      | Authentifie un utilisateur                      |
+| GET     | `/api/auth/me`         | Récupère les infos de l'utilisateur authentifié |
+| GET     | `/api/rentals`         | Liste toutes les locations disponibles         |
+| GET     | `/api/rentals/{id}`    | Détails d'une location spécifique              |
+| POST    | `/api/rentals`         | Créer une nouvelle location (via multipart/form-data) |
+| PUT     | `/api/rentals/{id}`    | Met à jour une location existante              |
+| DELETE  | `/api/rentals/{id}`    | Supprime une location                          |
+| GET     | `/swagger-ui.html`     | Accès à la documentation Swagger               |
 
 > **Note :**  
 > Les endpoints pour **rentals** et **messages** ne sont pas encore implémentés côté logique métier. Seules les entités/model existent pour ces fonctionnalités. Ces endpoints seront ajoutés dans les prochaines versions.
