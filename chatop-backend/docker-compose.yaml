@@ -81,9 +81,12 @@ services:
       - "3001:3001"
     networks:
       - chatop-network
+    volumes:
+      - uploads:/app/uploads
 
 volumes:
-  mysql_data:
+  uploads: # Volume pour les fichiers uploadés
+  mysql_data: # Volume pour les données de la base de données
 
 networks: # Réseau à utiliser
   chatop-network: # Nom du réseau
