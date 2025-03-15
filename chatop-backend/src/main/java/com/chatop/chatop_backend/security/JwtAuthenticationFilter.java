@@ -5,6 +5,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(
@@ -43,21 +47,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
+
         // Vérifie si l'en-tête Authorization est présent et commence par "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             // Si non, passe au filtre suivant
+            log.info("[DEBUG] Pas de header Bearer -> on laisse passer la requête sans auth");
             filterChain.doFilter(request, response);
             return;
         }
         
         //! Log de debogage pour l'en-tête Authorization
-        // System.out.println("Authorization: " + authHeader);
+        log.info("Authorization: {}", authHeader);
 
         // Extrait le token JWT (en supprimant le préfixe "Bearer ")
         jwt = authHeader.substring(7);
         
         // Extrait l'email de l'utilisateur depuis le token
         userEmail = jwtService.extractUsername(jwt);
+
+        log.info("[DEBUG] JWT = {}", jwt);
+        log.info("[DEBUG] userEmail = {}", userEmail);
+
         
         // Vérifie si l'email existe et si l'utilisateur n'est pas déjà authentifié
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -67,6 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Vérifie si le token est valide pour cet utilisateur
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 // Crée un token d'authentification Spring Security
+                log.info("[DEBUG] Token VALIDE, on authentifie {}", userDetails.getUsername());
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -80,6 +91,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 
                 // Met à jour le contexte de sécurité avec l'authentification
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                // Si le token n'est pas valide, envoie une erreur 403
+                log.info("[DEBUG] Token INVALIDE, on envoie un 403 / on laisse le filterChain gérer");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid token");
+                return;
             }
         }
         

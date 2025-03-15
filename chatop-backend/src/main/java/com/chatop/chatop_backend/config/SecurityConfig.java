@@ -60,15 +60,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
                 .authorizeHttpRequests(auth -> auth
                         // Chemins publics qui ne nécessitent pas d'authentification
+                        // Tous les autres chemins nécessitent une authentification
                         .requestMatchers(
                                 "/", // Chemin racine pour rediriger vers Swagger UI
                                 "/healthcheck",
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html")
-                        .permitAll()
-                        // Tous les autres chemins nécessitent une authentification
+                                "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/rentals/**").authenticated() 
+                        // Chemin pour les locations qui nécessitent une authentification
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Désactive la gestion de session pour que Spring Security ne crée pas de session HTTP

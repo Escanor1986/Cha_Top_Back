@@ -1,8 +1,12 @@
 package com.chatop.chatop_backend.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.chatop.chatop_backend.dto.AuthResponse;
 import com.chatop.chatop_backend.dto.LoginRequest;
 import com.chatop.chatop_backend.dto.RegisterRequest;
+import com.chatop.chatop_backend.exception.EmailAlreadyInUseException;
+import com.chatop.chatop_backend.exception.UserNotFoundException;
 import com.chatop.chatop_backend.model.User;
 import com.chatop.chatop_backend.repository.UserRepository;
 import com.chatop.chatop_backend.security.JwtService;
@@ -29,6 +33,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -43,7 +48,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         // Vérifie si l'email existe déjà
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already in use");
+            throw new EmailAlreadyInUseException("Email already in use");
         }
 
         // Crée un nouvel utilisateur
@@ -57,7 +62,17 @@ public class AuthService {
         
         // Sauvegarde l'utilisateur
         userRepository.save(user);
+
+        //! Debogage
+       logger.info("User registered: {}", user);
         
+        // Log l'utilisateur depuis le repository
+        user = userRepository.findByEmail(request.getEmail())
+        .orElseThrow(() -> new UserNotFoundException("User not found"));
+        
+        //! Debogage
+        logger.info("User registered from repository: {}", user);
+
         // Génère un token JWT
         var jwtToken = jwtService.generateToken(user);
         
