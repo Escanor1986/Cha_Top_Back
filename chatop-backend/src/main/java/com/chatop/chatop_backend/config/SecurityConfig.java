@@ -59,8 +59,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF. CSRF signifie Cross-Site Request Forgery. Il s'agit d'une attaque qui force un utilisateur à exécuter des actions non désirées sur une application Web dans laquelle il est authentifié.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
                 .authorizeHttpRequests(auth -> auth
-                        // Chemins publics qui ne nécessitent pas d'authentification
-                        // Tous les autres chemins nécessitent une authentification
+                    .requestMatchers("/uploads/**").permitAll() 
                         .requestMatchers(
                                 "/", // Chemin racine pour rediriger vers Swagger UI
                                 "/healthcheck",
@@ -88,6 +87,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(Arrays.asList("Content-Disposition")); // Expose l'en-tête Content-Disposition pour le téléchargement de fichiers
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

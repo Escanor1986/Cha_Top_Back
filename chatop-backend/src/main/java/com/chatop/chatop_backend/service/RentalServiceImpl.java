@@ -80,13 +80,29 @@ public class RentalServiceImpl implements RentalService {
     }
 
     // 🔹 Méthode de mapping : Entity -> DTO
+    // 🔥 Cette méthode est utilisée pour convertir une entité Rental en DTO RentalDto.
+    // 🔥 Elle est utilisée dans les méthodes de service pour retourner des objets DTO.
     private RentalDto mapToDto(Rental rental) {
         RentalDto dto = new RentalDto();
         dto.setId(rental.getId());
         dto.setName(rental.getName());
         dto.setSurface(rental.getSurface());
         dto.setPrice(rental.getPrice());
-        dto.setPicture(rental.getPicture());
+        // Vérifier que le chemin n'inclut pas déjà "/uploads/"
+        String picturePath = rental.getPicture();
+        // 🔥 Vérifier si l'image existe
+        if (picturePath != null && !picturePath.isEmpty()) {
+            // Vérifier que le chemin n'inclut pas déjà "/uploads/"
+            if (!picturePath.startsWith("/uploads/")) {
+                // Si le chemin ne commence pas par "/uploads/", ajouter "/uploads/"
+                picturePath = "/uploads/" + picturePath;
+            }
+            // On ajoute le chemin complet de l'image
+            dto.setPicture("http://localhost:3001" + rental.getPicture());
+        } else {
+            // 🔥 Retourner null si l'image n'existe pas
+            dto.setPicture(null);
+        }
         dto.setDescription(rental.getDescription());
         dto.setOwnerId(rental.getOwner().getId());
         return dto;
