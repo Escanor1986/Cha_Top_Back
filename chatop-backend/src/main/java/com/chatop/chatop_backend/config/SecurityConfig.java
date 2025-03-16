@@ -67,7 +67,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/rentals/**").authenticated() 
+                                .requestMatchers("/api/rentals/**").authenticated() 
+                                .requestMatchers("/api/messages/**").authenticated()
                         // Chemin pour les locations qui nécessitent une authentification
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
@@ -87,7 +88,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(Arrays.asList("Content-Disposition")); // Expose l'en-tête Content-Disposition pour le téléchargement de fichiers
+        configuration.setExposedHeaders(Arrays.asList("Content-Disposition")); // Expose l'en-tête Content-Disposition pour le téléchargement de fichiers (ref aux images dans uploads)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
