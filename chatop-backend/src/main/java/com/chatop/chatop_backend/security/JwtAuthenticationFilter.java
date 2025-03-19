@@ -13,11 +13,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Filtre pour intercepter les requêtes HTTP et vérifier l'authentification JWT.
@@ -42,64 +44,87 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // Logs sur la requête entrante
+        log.debug("🔍 Traitement de la requête: {} {}", request.getMethod(), request.getRequestURI());
+        
         // Récupère l'en-tête Authorization
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
 
-
         // Vérifie si l'en-tête Authorization est présent et commence par "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             // Si non, passe au filtre suivant
-            log.info("[DEBUG] Pas de header Bearer -> on laisse passer la requête sans auth");
+            log.debug("⚠️ Pas de header Bearer -> on laisse passer la requête sans auth");
             filterChain.doFilter(request, response);
             return;
         }
         
-        //! Log de debogage pour l'en-tête Authorization
-        log.info("Authorization: {}", authHeader);
+        // Log de débogage pour l'en-tête Authorization (version masquée pour la sécurité)
+        String maskedAuth = authHeader.substring(0, 15) + "..." + authHeader.substring(authHeader.length() - 10);
+        log.debug("🔐 En-tête d'autorisation détecté: {}", maskedAuth);
 
         // Extrait le token JWT (en supprimant le préfixe "Bearer ")
         jwt = authHeader.substring(7);
         
-        // Extrait l'email de l'utilisateur depuis le token
-        userEmail = jwtService.extractUsername(jwt);
-
-        log.info("[DEBUG] JWT = {}", jwt);
-        log.info("[DEBUG] userEmail = {}", userEmail);
-
-        
-        // Vérifie si l'email existe et si l'utilisateur n'est pas déjà authentifié
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Charge les détails de l'utilisateur depuis la base de données
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+        try {
+            // Extrait l'email de l'utilisateur depuis le token
+            userEmail = jwtService.extractUsername(jwt);
+            log.debug("👤 Email extrait du token: {}", userEmail);
             
-            // Vérifie si le token est valide pour cet utilisateur
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                // Crée un token d'authentification Spring Security
-                log.info("[DEBUG] Token VALIDE, on authentifie {}", userDetails.getUsername());
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+            // Vérifie et log la date d'expiration du token
+            Date expiration = jwtService.extractExpiration(jwt);
+            log.debug("⏱️ Expiration du token: {}, Token valide encore: {} secondes", 
+                     expiration, 
+                     (expiration.getTime() - System.currentTimeMillis()) / 1000);
+            
+            // Vérifie si l'email existe et si l'utilisateur n'est pas déjà authentifié
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                log.debug("🔍 Tentative de chargement de l'utilisateur avec l'email: {}", userEmail);
                 
-                // Ajoute les détails de la requête
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                
-                // Met à jour le contexte de sécurité avec l'authentification
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } else {
-                // Si le token n'est pas valide, envoie une erreur 403
-                log.info("[DEBUG] Token INVALIDE, on envoie un 403 / on laisse le filterChain gérer");
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid token");
-                return;
+                try {
+                    // Charge les détails de l'utilisateur depuis la base de données
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                    log.debug("✅ Utilisateur chargé avec succès: {}", userDetails.getUsername());
+                    
+                    // Vérifie si le token est valide pour cet utilisateur
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        // Crée un token d'authentification Spring Security
+                        log.debug("✅ Token VALIDE, authentification de l'utilisateur: {}", userDetails.getUsername());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+                        
+                        // Ajoute les détails de la requête
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+                        
+                        // Met à jour le contexte de sécurité avec l'authentification
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                        log.debug("🔒 Contexte de sécurité mis à jour avec l'authentification");
+                    } else {
+                        // Si le token n'est pas valide, envoie une erreur 403
+                        log.warn("❌ Token INVALIDE pour l'utilisateur: {}", userEmail);
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Token invalide");
+                        return;
+                    }
+                } catch (UsernameNotFoundException e) {
+                    log.error("❌ Échec de chargement de l'utilisateur: {}", userEmail, e);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Utilisateur non trouvé");
+                    return;
+                }
             }
+        } catch (Exception e) {
+            log.error("❌ Erreur lors du traitement du token JWT: {}", e.getMessage(), e);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Erreur de token: " + e.getMessage());
+            return;
         }
         
         // Continue la chaîne de filtres
+        log.debug("⏩ Poursuite de la chaîne de filtres");
         filterChain.doFilter(request, response);
     }
 }
