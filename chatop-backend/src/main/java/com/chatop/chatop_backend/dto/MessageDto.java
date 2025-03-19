@@ -1,13 +1,22 @@
 package com.chatop.chatop_backend.dto;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MessageDto {
-    private Long id;
-    private Long rentalId; // Correspond à rental.getId()
-    private Long userId;   // Correspond à user.getId()
+    
+    @JsonProperty("rental_id")
+    private Long rentalId;
+    
+    @JsonProperty("user_id")
+    private Long userId;
+    
     private String message;
-    private String createdAt; // createdAt est retourné en String (format ISO 8601) pour éviter les problèmes de formatage.
 }
