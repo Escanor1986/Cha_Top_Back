@@ -42,14 +42,15 @@
         │           ├── controller/
         │           │   ├── AuthController.java         # Contrôleur pour l'authentification (register, login, me)
         │           │   ├── RentalController.java       # Contrôleur pour la gestion des locations (CRUD)
-        │           │   ├── MessageController.java      # Contrôleur pour la gestion des messages (à implémenter)
+        │           │   ├── MessageController.java      # Contrôleur pour la gestion des messages
         │           ├── dto/
         │           │   ├── AuthResponse.java           # DTO pour la réponse d'authentification
         │           │   ├── LoginRequest.java           # DTO pour la requête de connexion
         │           │   ├── RegisterRequest.java        # DTO pour la requête d'enregistrement
         │           │   ├── UserDto.java                # DTO pour les utilisateurs (/me, etc.)
         │           │   ├── RentalDto.java              # DTO pour les locations
-        │           │   ├── MessageDto.java             # DTO pour les messages (à implémenter)
+        │           │   ├── MessageDto.java             # DTO pour les messages (avec JsonProperty pour mapping)
+        │           │   ├── ResponseMessage.java        # DTO standard pour les messages de réponse d'API
         │           ├── exception/
         │           │   ├── GlobalExceptionHandler.java # Gestion centralisée des exceptions
         │           │   ├── AuthException.java          # Exception personnalisée pour l'authentification
@@ -58,29 +59,30 @@
         │           ├── model/
         │           │   ├── User.java                   # Entité utilisateur
         │           │   ├── Rental.java                 # Entité location (rental)
-        │           │   ├── Message.java                # Entité message (à implémenter)
+        │           │   ├── Message.java                # Entité message (avec annotations @Builder)
         │           ├── repository/
         │           │   ├── UserRepository.java         # Accès aux données utilisateur
         │           │   ├── RentalRepository.java       # Accès aux données des locations
-        │           │   ├── MessageRepository.java      # Accès aux données des messages (à implémenter)
+        │           │   ├── MessageRepository.java      # Accès aux données des messages
         │           ├── security/
-        │           │   ├── JwtAuthenticationFilter.java  # Filtre pour vérifier les JWT sur chaque requête
-        │           │   ├── JwtService.java               # Service pour générer et valider les tokens JWT
-        │           │   ├── CustomUserDetailsService.java # Service pour charger les détails d'un utilisateur
+        │           │   ├── JwtAuthenticationFilter.java  # Filtre pour vérifier les JWT sur chaque requête (logs améliorés)
+        │           │   ├── JwtService.java               # Service pour générer et valider les tokens JWT (logs améliorés)
+        │           │   ├── CustomUserDetailsService.java # Service pour charger les détails d'un utilisateur (logs améliorés)
         │           ├── service/
         │           │   ├── AuthService.java             # Service gérant l'authentification
         │           │   ├── RentalService.java           # Interface pour la logique métier des locations
         │           │   ├── RentalServiceImpl.java       # Implémentation de la gestion des locations
-        │           │   ├── MessageService.java          # Interface pour la logique métier des messages (à implémenter)
-        │           │   ├── MessageServiceImpl.java      # Implémentation de MessageService (à implémenter)
-        │           │   ├── FileStorageService.java      # Service de gestion des fichiers (upload d’images pour les rentals)
+        │           │   ├── MessageService.java          # Interface pour la logique métier des messages
+        │           │   ├── MessageServiceImpl.java      # Implémentation de MessageService (complètement fonctionnelle)
+        │           │   ├── FileStorageService.java      # Service de gestion des fichiers (logs améliorés, noms de fichiers uniques)
         │           ├── utils/
         │           │   ├── VaultPropertiesLogger.java   # Logger des propriétés Vault pour la gestion des secrets
         └── resources/
-            ├── application.properties  # Configuration Spring Boot (port, JPA, Swagger, etc.)
-            ├── bootstrap.yaml          # Configuration Spring Cloud Vault (et potentiellement Config Server)
+            ├── application.properties  # Configuration Spring Boot mise à jour (limite taille upload, logs)
+            ├── bootstrap.yaml          # Configuration Spring Cloud Vault
             ├── static/
-            │   └── uploads/             # Dossier pour stocker les images uploadées (si utilisé localement)
+            │   └── uploads/            # Dossier pour stocker les images uploadées
+            └── logs/                   # Dossier pour stocker les fichiers de logs
 
 ```
 
