@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Cette classe est un contrôleur REST qui expose les différentes routes pour
@@ -133,9 +134,55 @@ public class RentalController {
         return ResponseEntity.ok(createdRental);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<RentalDto> updateRental(@PathVariable Long id, @RequestBody RentalDto rentalDto) {
-        RentalDto updatedRental = rentalService.updateRental(id, rentalDto);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RentalDto> updateRental(
+            @PathVariable Long id,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "surface", required = false) BigDecimal surface,
+            @RequestParam(value = "price", required = false) BigDecimal price,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "picture", required = false) MultipartFile picture,
+            Authentication authentication) {
+    
+        log.info("🚀 updateRental() - Début de la mise à jour de la location id={}", id);
+    
+        // Vérifie que l'utilisateur est authentifié
+        if (authentication == null || authentication.getName() == null) {
+            log.error("⛔ Erreur: Utilisateur non authentifié");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    
+        // Récupération de la location existante
+        Optional<RentalDto> existingRentalOpt = rentalService.getRentalById(id);
+        if (existingRentalOpt.isEmpty()) {
+            log.error("⛔ Location non trouvée avec l'id: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+        
+        RentalDto existingRental = existingRentalOpt.get();
+        
+        // Mise à jour des champs si fournis
+        if (name != null) existingRental.setName(name);
+        if (surface != null) existingRental.setSurface(surface);
+        if (price != null) existingRental.setPrice(price);
+        if (description != null) existingRental.setDescription(description);
+        
+        // Gestion de l'image
+        if (picture != null && !picture.isEmpty()) {
+            try {
+                String imagePath = fileStorageService.saveFile(picture);
+                existingRental.setPicture(imagePath);
+                log.info("📸 Nouvelle image enregistrée avec succès");
+            } catch (IOException e) {
+                log.error("⚠️ Erreur lors de l'enregistrement de la nouvelle image", e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+        
+        // Sauvegarde en base de données
+        RentalDto updatedRental = rentalService.updateRental(id, existingRental);
+        log.info("✅ Location mise à jour avec succès: {}", updatedRental);
+        
         return ResponseEntity.ok(updatedRental);
     }
 
