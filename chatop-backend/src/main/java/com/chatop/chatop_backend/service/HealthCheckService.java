@@ -6,6 +6,13 @@ import com.chatop.chatop_backend.ApplicationStatus;
 import com.chatop.chatop_backend.HealthCheck;
 import com.chatop.chatop_backend.repository.HealthCheckRepository;
 
+/**
+ * Service class pour la vérification de l'état de l'application.
+ * Cette classe vérifie si l'application est en cours d'exécution correctement.
+ * Elle utilise le HealthCheckRepository pour compter les connexions actives à la base de données.
+ * 
+ * @Service indique que cette classe est un bean de service.
+ */
 @Service
 public class HealthCheckService {
 
