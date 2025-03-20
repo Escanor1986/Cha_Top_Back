@@ -1,6 +1,8 @@
 package com.chatop.chatop_backend.repository;
 
 import com.chatop.chatop_backend.model.User;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,5 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param email Email de l'utilisateur
      * @return Utilisateur correspondant à l'email
      */
-    Optional<User> findByEmail(String email);
+    @Cacheable(value = "useCache", key = "#email")
+    public Optional<User> findByEmail(String email);
 }

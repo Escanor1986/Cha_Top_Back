@@ -9,6 +9,7 @@ COPY pom.xml .
 COPY src ./src
 # RUN executes a command
 RUN mvn clean package -DskipTests
+RUN mvn javadoc:javadoc
 
 # FROM makes the image available to use
 #
@@ -19,6 +20,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 # COPY copies files from the source to the destination
 COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/site/apidocs /app/apidocs
 # --from=build specifies the build stage to copy files from
 
 # EXPOSE exposes a port
