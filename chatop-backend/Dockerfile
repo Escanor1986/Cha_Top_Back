@@ -1,29 +1,26 @@
-
-#  FROM makes the image available to use
-#  AS sets the name of the build stage
 FROM maven:3.8.5-openjdk-17 AS build
-# Set the working directory
 WORKDIR /app
-# Copy the source code
 COPY pom.xml .
 COPY src ./src
-# RUN executes a command
 RUN mvn clean package -DskipTests
 RUN mvn javadoc:javadoc
 
-# FROM makes the image available to use
-#
-# The openjdk:17-jdk-slim image is a lightweight image that contains the OpenJDK 17 runtime environment.
-# The image is based on the Debian operating system.
 FROM openjdk:17-jdk-slim
-# Set the working directory
 WORKDIR /app
-# COPY copies files from the source to the destination
+# Installer Nginx
+RUN apt-get update && apt-get install -y nginx
 COPY --from=build /app/target/*.jar app.jar
-COPY --from=build /app/target/site/apidocs /app/apidocs
-# --from=build specifies the build stage to copy files from
-
-# EXPOSE exposes a port
-EXPOSE 3001
-# ENTRYPOINT specifies the command to run when the container starts
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=build /app/target/site/apidocs /javadoc
+# Copier la configuration Nginx
+RUN echo 'server { \
+    listen 80; \
+    server_name localhost; \
+    location /javadoc/ { \
+        alias /app/apidocs/; \
+        index index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
+# Exposer les ports
+EXPOSE 3001 80
+# Démarrer Nginx avec votre application
+CMD ["sh", "-c", "nginx && java -jar app.jar"]
