@@ -15,6 +15,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
+  // 🔥 Utilisation de l'annotation @EntityGraph pour charger l'entité propriétaire de la location.
+  // Cela permet d'éviter les requêtes supplémentaires lors de l'accès à l'entité propriétaire.
   @EntityGraph(attributePaths = {"owner"})
   List<Rental> findAll();
 }
+
