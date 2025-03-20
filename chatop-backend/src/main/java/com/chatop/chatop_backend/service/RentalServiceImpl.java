@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 /**
  * Cette classe implémente les méthodes définies dans l'interface RentalService.
  * Elle permet de gérer les locations en interagissant avec la base de données.
+ * 
  * @Service: Indique à Spring qu'il s'agit d'un bean qui doit être instancié.
- * @Override: Indique que la méthode redéfinit une méthode de l'interface implémentée.
-  */
+ * @Override: Indique que la méthode redéfinit une méthode de l'interface
+ *            implémentée.
+ */
 @Service
 public class RentalServiceImpl implements RentalService {
 
@@ -34,7 +36,7 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = mapToEntity(rentalDto);
         rental.setCreatedAt(LocalDateTime.now());
         rental.setUpdatedAt(LocalDateTime.now());
-        
+
         // 🔥 Vérifier que l'utilisateur existe
         User owner = userRepository.findById(rentalDto.getOwnerId())
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + rentalDto.getOwnerId()));
@@ -80,8 +82,10 @@ public class RentalServiceImpl implements RentalService {
     }
 
     // 🔹 Méthode de mapping : Entity -> DTO
-    // 🔥 Cette méthode est utilisée pour convertir une entité Rental en DTO RentalDto.
-    // 🔥 Elle est utilisée dans les méthodes de service pour retourner des objets DTO.
+    // 🔥 Cette méthode est utilisée pour convertir une entité Rental en DTO
+    // RentalDto.
+    // 🔥 Elle est utilisée dans les méthodes de service pour retourner des objets
+    // DTO.
     private RentalDto mapToDto(Rental rental) {
         RentalDto dto = new RentalDto();
         dto.setId(rental.getId());
@@ -90,20 +94,33 @@ public class RentalServiceImpl implements RentalService {
         dto.setPrice(rental.getPrice());
         // Vérifier que le chemin n'inclut pas déjà "/uploads/"
         String picturePath = rental.getPicture();
-        // 🔥 Vérifier si l'image existe
         if (picturePath != null && !picturePath.isEmpty()) {
-            // Vérifier que le chemin n'inclut pas déjà "/uploads/"
-            if (!picturePath.startsWith("/uploads/")) {
+            // Vérifier si l'URL contient déjà http://localhost:3001
+            if (picturePath.startsWith("http://localhost:3001")) {
+                dto.setPicture(picturePath);
+            } else {
                 // Si le chemin ne commence pas par "/uploads/", ajouter "/uploads/"
-                picturePath = "/uploads/" + picturePath;
+                if (!picturePath.startsWith("/uploads/")) {
+                    picturePath = "/uploads/" + picturePath;
+                }
+                // Ajouter le préfixe du serveur
+                dto.setPicture("http://localhost:3001" + picturePath);
             }
-            // On ajoute le chemin complet de l'image
-            dto.setPicture("http://localhost:3001" + rental.getPicture());
         } else {
-            // 🔥 Retourner null si l'image n'existe pas
             dto.setPicture(null);
         }
         dto.setDescription(rental.getDescription());
+
+        // Conversion LocalDateTime -> Date pour correspondre à l'interface Angular
+        if (rental.getCreatedAt() != null) {
+            dto.setCreatedAt(java.util.Date.from(
+                    rental.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()));
+        }
+
+        if (rental.getUpdatedAt() != null) {
+            dto.setUpdatedAt(java.util.Date.from(
+                    rental.getUpdatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()));
+        }
         dto.setOwnerId(rental.getOwner().getId());
         return dto;
     }
@@ -114,7 +131,26 @@ public class RentalServiceImpl implements RentalService {
         rental.setName(dto.getName());
         rental.setSurface(dto.getSurface());
         rental.setPrice(dto.getPrice());
-        rental.setPicture(dto.getPicture());
+
+        // Gestion de l'image - extraction du chemin relatif
+        String picturePath = dto.getPicture();
+        if (picturePath != null && !picturePath.isEmpty()) {
+            // Nettoyer les URL dupliquées en supprimant toutes les instances de
+            // http://localhost:3001
+            while (picturePath.contains("http://localhost:3001")) {
+                picturePath = picturePath.replace("http://localhost:3001", "");
+            }
+
+            // S'assurer que le chemin commence par /uploads/
+            if (!picturePath.startsWith("/uploads/")) {
+                picturePath = "/uploads/" + picturePath;
+            }
+
+            rental.setPicture(picturePath);
+        } else {
+            rental.setPicture(null);
+        }
+        
         rental.setDescription(dto.getDescription());
 
         // 🔥 Vérifier l'existence du propriétaire
@@ -123,6 +159,20 @@ public class RentalServiceImpl implements RentalService {
                     .orElseThrow(() -> new RuntimeException("Owner not found with id: " + dto.getOwnerId()));
             rental.setOwner(owner);
         }
+
+        // Conversion Date -> LocalDateTime
+        if (dto.getCreatedAt() != null) {
+            rental.setCreatedAt(dto.getCreatedAt().toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDateTime());
+        }
+
+        if (dto.getUpdatedAt() != null) {
+            rental.setUpdatedAt(dto.getUpdatedAt().toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDateTime());
+        }
+
         return rental;
     }
 }
