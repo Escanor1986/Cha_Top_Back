@@ -64,9 +64,11 @@ public class SecurityConfig {
                                 "/", // Chemin racine pour rediriger vers Swagger UI
                                 "/healthcheck",
                                 "/api/auth/**",
-                                "/v3/api-docs/**",
+                                "/api-docs/**",
+                                "/api-docs/swagger-config",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html").permitAll()
+                                "/swagger-ui.html",
+                                "/webjars/**").permitAll()
                                 .requestMatchers("/api/rentals/**").authenticated() 
                                 .requestMatchers("/api/messages/**").authenticated()
                         // Chemin pour les locations qui nécessitent une authentification
