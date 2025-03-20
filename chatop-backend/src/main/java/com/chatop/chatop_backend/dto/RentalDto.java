@@ -3,6 +3,9 @@ package com.chatop.chatop_backend.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Cette classe est un Data Transfer Object (DTO) qui permet de transférer des données entre le client et le serveur.
  *  Elle contient les informations à envoyer au client concernant une location.
@@ -20,6 +23,13 @@ public class RentalDto {
     private BigDecimal price;
     private String picture;
     private String description;
-    // Pour associer le propriétaire sans inclure l'objet complet
+    
+    @JsonProperty("created_at")
+    private Date createdAt;
+    
+    @JsonProperty("updated_at")
+    private Date updatedAt;
+    
+    @JsonProperty("owner_id")
     private Long ownerId;
 }

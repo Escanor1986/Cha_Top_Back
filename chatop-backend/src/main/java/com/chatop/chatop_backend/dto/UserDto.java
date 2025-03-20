@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * La classe UserDto est un Data Transfer Object (DTO) qui est utilisé pour transférer les données de l'utilisateur
  * entre les couches de l'application.
@@ -30,6 +32,10 @@ public class UserDto {
     private Long id;
     private String name;
     private String email;
+
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
+
+    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 }
