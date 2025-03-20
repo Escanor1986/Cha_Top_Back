@@ -16,6 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -28,10 +32,8 @@ import java.util.Optional;
  * Elle permet de gérer les requêtes HTTP pour les locations.
  * 
  * @RestController: Indique à Spring qu'il s'agit d'un contrôleur REST.
- * @RequestMapping: Indique le préfixe commun pour toutes les routes définies
- *                  dans ce contrôleur.
- *                  !Dans ce cas, toutes les routes commenceront par
- *                  /api/rentals.
+ * @RequestMapping: Indique le préfixe commun pour toutes les routes définies dans ce contrôleur.
+ *!Dans ce cas, toutes les routes commenceront par /api/rentals.
  */
 @RestController
 @RequestMapping("/api/rentals")
@@ -49,6 +51,16 @@ public class RentalController {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Récupère toutes les locations.
+     * 
+     * @return Liste de toutes les locations
+     */
+    @Operation(summary = "Récupère toutes les locations")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Locations récupérées avec succès"),
+        @ApiResponse(responseCode = "204", description = "Aucune location trouvée")
+    })
     @GetMapping
     public ResponseEntity<?> getAllRentals() {
         // Debogage
@@ -65,6 +77,17 @@ public class RentalController {
         }
     }
 
+    /**
+     * Récupère une location par son ID.
+     * 
+     * @param id ID de la location
+     * @return Location correspondant à l'ID
+     */
+    @Operation(summary = "Récupère une location par son ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Location trouvée"),
+        @ApiResponse(responseCode = "404", description = "Location non trouvée")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
         return rentalService.getRentalById(id)
@@ -72,9 +95,22 @@ public class RentalController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔹 Correction : Suppression du @RequestParam ownerId
-    // 🔹 Ajout de l'extraction automatique de l'utilisateur depuis
-    // l'authentification (JWT)
+   /**
+    * Crée une nouvelle location.
+    *
+    * @param name Nom de la location
+    * @param surface Surface de la location
+    * @param price Prix de la location
+    * @param description Description de la location
+    * @param picture Image de la location
+    * @param authentication Objet d'authentification fourni par Spring Security
+    * @return Réponse contenant la location créée
+     */
+    @Operation(summary = "Crée une nouvelle location")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Location créée avec succès"),
+            @ApiResponse(responseCode = "400", description = "Erreur lors de la création de la location")
+    })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RentalDto> createRental(
             @RequestParam("name") String name,
@@ -134,6 +170,23 @@ public class RentalController {
         return ResponseEntity.ok(createdRental);
     }
 
+    /** 
+     * Met à jour une location existante.
+     * 
+     * @param id ID de la location
+     * @param name Nom de la location
+     * @param surface Surface de la location
+     * @param price Prix de la location
+     * @param description Description de la location
+     * @param picture Image de la location
+     * @param authentication Objet d'authentification fourni par Spring Security
+     * @return Réponse contenant la location mise à jour
+     */
+    @Operation(summary = "Met à jour une location existante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Location mise à jour avec succès"),
+            @ApiResponse(responseCode = "400", description = "Erreur lors de la mise à jour de la location")
+    })
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RentalDto> updateRental(
             @PathVariable Long id,
@@ -186,6 +239,17 @@ public class RentalController {
         return ResponseEntity.ok(updatedRental);
     }
 
+    /** 
+     * Supprime une location existante.
+     * 
+     * @param id ID de la location
+     * @return Réponse indiquant si la location a été supprimée avec succès
+     */
+    @Operation(summary = "Supprime une location existante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Location supprimée avec succès"),
+            @ApiResponse(responseCode = "404", description = "Location non trouvée")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRental(@PathVariable Long id) {
         rentalService.deleteRental(id);

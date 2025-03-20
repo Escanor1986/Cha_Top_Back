@@ -4,6 +4,11 @@ import com.chatop.chatop_backend.dto.UserDto;
 import com.chatop.chatop_backend.exception.UserNotFoundException;
 import com.chatop.chatop_backend.model.User;
 import com.chatop.chatop_backend.repository.UserRepository;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,19 @@ public class UserController {
     this.userRepository = userRepository;
   }
 
+  // JavaDoc
+  /**
+   * Récupère un utilisateur par son ID.
+   * 
+   * @param id ID de l'utilisateur
+   * @return Utilisateur correspondant à l'ID
+   * @throws UserNotFoundException Si l'utilisateur n'est pas trouvé
+   */
+  @Operation(summary = "Récupère un utilisateur par son ID", description = "Renvoie les informations d'un utilisateur à partir de son identifiant")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Utilisateur trouvé"),
+      @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+  })
   @GetMapping("/{id}")
   public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
     log.info("👤 Récupération de l'utilisateur avec l'ID: {}", id);

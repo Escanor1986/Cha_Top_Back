@@ -11,13 +11,12 @@ public class HealthCheckService {
 
   private final HealthCheckRepository healthCheckRepository;
 
-  // ✅ Injection du repository via le constructeur
   public HealthCheckService(HealthCheckRepository healthCheckRepository) {
     this.healthCheckRepository = healthCheckRepository;
   }
 
   public HealthCheck healthcheck() {
-    Long activeSessions = healthCheckRepository.countApplicationConnections(); // ✅ Appel correct
+    Long activeSessions = healthCheckRepository.countApplicationConnections();
 
     if (activeSessions > 0) {
       return new HealthCheck(ApplicationStatus.OK, "Welcome to escanor1986 Tennis! Active PostgreSQL Sessions: " + activeSessions);
