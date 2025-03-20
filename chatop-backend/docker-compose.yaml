@@ -85,7 +85,6 @@ services:
       - uploads:/app/uploads
       - javadoc:/javadoc
   
-  # Ajouter ce service à votre docker-compose.yml
   javadoc:
     image: nginx:alpine
     container_name: chatop-javadoc
@@ -94,7 +93,8 @@ services:
     ports:
       - "8888:80"
     volumes:
-      - ./javadoc:/usr/share/nginx/html/javadoc
+      - javadoc:/usr/share/nginx/html/javadoc
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Ajouter cette ligne
     networks:
       - chatop-network
 
