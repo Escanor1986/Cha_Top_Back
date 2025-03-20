@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/rentals")
+@Tag(name = "Rental API Controller", description = "Exposes endpoints to manage rentals")
 public class RentalController {
 
     private static final Logger log = LoggerFactory.getLogger(RentalController.class);
