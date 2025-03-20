@@ -11,10 +11,10 @@
 ## 📑 Sommaire
 
 - [Présentation](#-présentation)
-- [Technologies](#-technologies)
+- [Technologies](#technologies)
 - [Installation rapide](#-installation-rapide)
-- [Architecture](#-architecture)
-- [Configuration détaillée](#-configuration-détaillée)
+- [Architecture](#architecture)
+- [Configuration détaillée](#configuration-détaillée)
 - [API Endpoints](#-api-endpoints)
 - [Documentation](#-documentation)
 - [Dépannage](#-dépannage)
@@ -93,7 +93,7 @@ Vous devriez voir les conteneurs suivants actifs :
 
 ## 🏗️ Architecture
 
-```
+```sh
 📺chatop
    └── config
    │    └── OpenApiConfig
@@ -227,7 +227,7 @@ curl -X POST "http://localhost:3001/api/rentals" \
 
 L'API est documentée avec OpenAPI 3.0 et accessible via Swagger UI à :
 
-```
+```sh
 http://localhost:3001/swagger-ui.html
 ```
 
@@ -241,7 +241,7 @@ Cette interface permet de :
 
 La documentation technique du code est générée automatiquement lors du build et accessible à :
 
-```
+```sh
 http://localhost:8888/javadoc/
 ```
 
@@ -253,7 +253,7 @@ Elle fournit des informations détaillées sur l'implémentation des classes, m�
 
 Si vous rencontrez l'erreur :
 
-```
+```sh
 failed to solve: maven:3.8.4-openjdk-17: failed to resolve source metadata
 ```
 
@@ -314,4 +314,4 @@ Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue ou à me c
 
 ---
 
-*Développé avec ❤️ pour faciliter la location saisonnière sur la côte basque*
+#### *Développé avec ❤️ pour faciliter la location saisonnière sur la côte basque*
