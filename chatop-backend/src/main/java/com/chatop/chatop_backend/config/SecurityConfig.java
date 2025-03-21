@@ -50,13 +50,25 @@ public class SecurityConfig {
      *
      * @param http Configuration de la sécurité HTTP
      * @return Chaîne de filtres de sécurité configurée
-     * @Bean indique que cette méthode produit un bean à utiliser dans l'application. un bean est un objet qui est instancié, assemblé et géré par un conteneur IoC (Inversion of Control). Il sert de composant dans le développement d'applications. un conteneur IoC est un cadre logiciel qui gère les beans.
+     * @Bean indique que cette méthode produit un bean à utiliser dans l'application. un bean est un objet qui est instancié, assemblé et géré par un conteneur IoC (Inversion of Control). Il sert de composant dans le développement d'applications. un conteneur IoC est un cadre logiciel qui gère les beans. Le Bean est utile quand vous avez besoin d'un objet à plusieurs endroits dans votre application.
      * @throws Exception si une erreur se produit lors de la configuration de la sécurité
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http        
                 .csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF. CSRF signifie Cross-Site Request Forgery. Il s'agit d'une attaque qui force un utilisateur à exécuter des actions non désirées sur une application Web dans laquelle il est authentifié.
+                            // Configuration des en-têtes de sécurité HTTP
+                .headers(headers -> headers
+                    // Content Security Policy : Définit les sources autorisées pour le contenu
+                    .contentSecurityPolicy(csp -> csp
+                        .policyDirectives("default-src 'self';  style-src 'self' 'unsafe-inline';"))
+                    // X-Frame-Options : Empêche le site d'être affiché dans un iframe (protection contre le clickjacking)
+                    .frameOptions(frameOptions -> frameOptions.deny())
+                    // Cache-Control : Désactive la mise en cache pour les ressources sensibles pour éviter les fuites d'informations
+                    .cacheControl(cacheControl -> cacheControl.disable())
+                    // HSTS : Active la politique de sécurité de transport strict (HSTS) pour forcer HTTPS et protéger contre les attaques de type SSLStrip
+                    .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/uploads/**").permitAll() 

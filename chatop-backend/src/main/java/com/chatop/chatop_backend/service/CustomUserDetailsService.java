@@ -33,6 +33,10 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @param email Email de l'utilisateur
      * @return Détails de l'utilisateur
      * @throws UsernameNotFoundException Si l'utilisateur n'est pas trouvé
+     * 
+     * !loadUserByUsername doit retourner un objet UserDetails qui contient les informations de l'utilisateur
+     * !et ses rôles/permissions. Même si votre application n'utilise pas de rôles complexes,
+     * !vous devez au minimum fournir une liste d'autorités (qui peut être vide ou contenir un rôle par défaut comme "USER").
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -64,3 +68,26 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 }
+
+/* 
+ * Remarque:
+ * UserDetailsService dans Spring Security exige obligatoirement la gestion des rôles (ou "authorities") pour plusieurs raisons:
+
+1. La sécurité dans Spring est basée sur l'authentification (qui est l'utilisateur) ET l'autorisation (ce qu'il peut faire)
+
+2. La méthode `loadUserByUsername()` doit retourner un `UserDetails` qui contient nécessairement:
+   - Identifiants de connexion
+   - Mot de passe
+   - Collection d'`GrantedAuthority` représentant les rôles/permissions
+
+3. Ces autorités sont utilisées pour les annotations comme `@PreAuthorize("hasRole('ADMIN')")` et les configurations de sécurité comme `.hasAuthority("WRITE_PRIVILEGE")`
+
+Même si votre application n'utilise pas de rôles complexes, vous devez au minimum fournir une liste d'autorités (qui peut être vide ou contenir un rôle par défaut comme "USER").
+
+Dans l'implémentation:
+```java
+return new User(username, password, 
+    Ici, vous DEVEZ spécifier une collection d'autorités
+    Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
+```
+ */
