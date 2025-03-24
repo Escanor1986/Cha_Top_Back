@@ -94,7 +94,7 @@ services:
       - "8888:80"
     volumes:
       - javadoc:/usr/share/nginx/html/javadoc
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Ajouter cette ligne
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - chatop-network
 

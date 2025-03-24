@@ -55,9 +55,10 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http        
-                .csrf(AbstractHttpConfigurer::disable) // Désactive la protection CSRF. CSRF signifie Cross-Site Request Forgery. Il s'agit d'une attaque qui force un utilisateur à exécuter des actions non désirées sur une application Web dans laquelle il est authentifié.
-                            // Configuration des en-têtes de sécurité HTTP
+         http    
+                // Désactive la protection CSRF. CSRF signifie Cross-Site Request Forgery. Il s'agit d'une attaque qui force un utilisateur à exécuter des actions non désirées sur une application Web dans laquelle il est authentifié.    
+                .csrf(AbstractHttpConfigurer::disable)
+                // Configuration des en-têtes de sécurité HTTP
                 .headers(headers -> headers
                     // Content Security Policy : Définit les sources autorisées pour le contenu
                     .contentSecurityPolicy(csp -> csp
@@ -67,9 +68,14 @@ public class SecurityConfig {
                     // Cache-Control : Désactive la mise en cache pour les ressources sensibles pour éviter les fuites d'informations
                     .cacheControl(cacheControl -> cacheControl.disable())
                     // HSTS : Active la politique de sécurité de transport strict (HSTS) pour forcer HTTPS et protéger contre les attaques de type SSLStrip
-                    .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                    .httpStrictTransportSecurity(hsts -> hsts
+                        // includeSubDomains : Inclut les sous-domaines pour la politique HSTS
+                        .includeSubDomains(true)
+                        // max-age : Durée pendant laquelle le navigateur doit forcer HTTPS (1 an)
+                        .maxAgeInSeconds(31536000))
                 )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
+                 // Configure CORS pour permettre les requêtes cross-origin. CORS signifie Cross-Origin Resource Sharing. Il s'agit d'un mécanisme qui utilise des en-têtes HTTP pour permettre à un serveur de dire à un navigateur web d'accéder à des ressources d'un serveur situé sur un autre domaine.
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/uploads/**").permitAll() 
                         .requestMatchers(
