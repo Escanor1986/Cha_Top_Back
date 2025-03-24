@@ -33,61 +33,50 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @param email Email de l'utilisateur
      * @return Détails de l'utilisateur
      * @throws UsernameNotFoundException Si l'utilisateur n'est pas trouvé
-     * 
-     * !loadUserByUsername doit retourner un objet UserDetails qui contient les informations de l'utilisateur
-     * !et ses rôles/permissions. Même si votre application n'utilise pas de rôles complexes,
-     * !vous devez au minimum fournir une liste d'autorités (qui peut être vide ou contenir un rôle par défaut comme "USER").
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.debug("🔍 Recherche de l'utilisateur par email: {}", email);
         
-        // Recherche l'utilisateur et log le résultat
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        log.debug("👤 Existence de l'utilisateur dans la base: {}", userOptional.isPresent());
-        
-        if (userOptional.isEmpty()) {
-            log.error("❌ Utilisateur non trouvé avec l'email: {}", email);
-            throw new UsernameNotFoundException("Utilisateur non trouvé");
+        try {
+            // Recherche l'utilisateur et log le résultat
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            log.debug("👤 Existence de l'utilisateur dans la base: {}", userOptional.isPresent());
+            
+            if (userOptional.isEmpty()) {
+                log.error("❌ Utilisateur non trouvé avec l'email: {}", email);
+                throw new UsernameNotFoundException("Utilisateur non trouvé avec l'email: " + email);
+            }
+            
+            User user = userOptional.get();
+            
+            // Journalisation des informations utilisateur (sans données sensibles)
+            log.debug("✅ Utilisateur trouvé: id={}, email={}, rôle={}, création={}", 
+                    user.getId(), user.getEmail(), user.getRole(), user.getCreatedAt());
+
+            // S'assurer que le rôle commence bien par "ROLE_"
+            String role = user.getRole();
+            if (role == null || role.isEmpty()) {
+                log.warn("⚠️ L'utilisateur {} n'a pas de rôle défini, attribution du rôle par défaut ROLE_USER", user.getId());
+                role = "ROLE_USER";
+            } else if (!role.startsWith("ROLE_")) {
+                role = "ROLE_" + role;
+            }
+            
+            log.debug("🔒 Rôle utilisé pour l'authentification: {}", role);
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getEmail(),
+                    user.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority(role))
+            );
+        } catch (UsernameNotFoundException e) {
+            // Propagation de l'exception spécifique
+            throw e;
+        } catch (Exception e) {
+            // En cas d'erreur inattendue, loguer l'erreur et lancer une exception UsernameNotFoundException
+            log.error("🔥 Erreur inattendue lors du chargement de l'utilisateur: {}", e.getMessage(), e);
+            throw new UsernameNotFoundException("Erreur lors du chargement de l'utilisateur: " + e.getMessage());
         }
-        
-        User user = userOptional.get();
-        
-        // Journalisation des informations utilisateur (sans données sensibles)
-        log.debug("✅ Utilisateur trouvé: id={}, email={}, rôle={}, création={}", 
-                user.getId(), user.getEmail(), user.getRole(), user.getCreatedAt());
-
-        // S'assurer que le rôle commence bien par "ROLE_"
-        String role = user.getRole().startsWith("ROLE_") ? user.getRole() : "ROLE_" + user.getRole();
-        log.debug("🔒 Rôle utilisé pour l'authentification: {}", role);
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(role))
-        );
     }
 }
-
-/* 
- * Remarque:
- * UserDetailsService dans Spring Security exige obligatoirement la gestion des rôles (ou "authorities") pour plusieurs raisons:
-
-1. La sécurité dans Spring est basée sur l'authentification (qui est l'utilisateur) ET l'autorisation (ce qu'il peut faire)
-
-2. La méthode `loadUserByUsername()` doit retourner un `UserDetails` qui contient nécessairement:
-   - Identifiants de connexion
-   - Mot de passe
-   - Collection d'`GrantedAuthority` représentant les rôles/permissions
-
-3. Ces autorités sont utilisées pour les annotations comme `@PreAuthorize("hasRole('ADMIN')")` et les configurations de sécurité comme `.hasAuthority("WRITE_PRIVILEGE")`
-
-Même si votre application n'utilise pas de rôles complexes, vous devez au minimum fournir une liste d'autorités (qui peut être vide ou contenir un rôle par défaut comme "USER").
-
-Dans l'implémentation:
-```java
-return new User(username, password, 
-    Ici, vous DEVEZ spécifier une collection d'autorités
-    Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
-```
- */
