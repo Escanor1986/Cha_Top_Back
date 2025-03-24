@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Cette classe est un contrôleur REST qui expose les différentes routes pour
@@ -51,6 +52,7 @@ public class RentalController {
         this.rentalService = rentalService;
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
+        log.info("🔌 RentalController initialisé avec succès");
     }
 
     /**
@@ -61,21 +63,29 @@ public class RentalController {
     @Operation(summary = "Récupère toutes les locations")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Locations récupérées avec succès"),
-        @ApiResponse(responseCode = "204", description = "Aucune location trouvée")
+        @ApiResponse(responseCode = "204", description = "Aucune location trouvée"),
+        @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @GetMapping
     public ResponseEntity<?> getAllRentals() {
-        // Debogage
-        log.info("🚀 getAllRentals() - Récupération de toutes les locations");
+        String requestId = UUID.randomUUID().toString(); // Génère un ID de requête unique
+        log.info("📥 [{}] Réception d'une requête de récupération de toutes les locations", requestId);
+        
+        try {
+            log.debug("🔍 [{}] Appel du service pour récupérer toutes les locations", requestId);
+            List<RentalDto> rentals = rentalService.getAllRentals();
 
-        List<RentalDto> rentals = rentalService.getAllRentals();
-
-        if (rentals.isEmpty()) {
-            log.warn("⚠️ Aucune location trouvée");
-            return ResponseEntity.noContent().build();
-        } else {
-            log.info("✅ {} locations trouvées", rentals.size());
-            return ResponseEntity.ok(Collections.singletonMap("rentals", rentals));
+            if (rentals.isEmpty()) {
+                log.warn("⚠️ [{}] Aucune location trouvée dans la base de données", requestId);
+                return ResponseEntity.noContent().build();
+            } else {
+                log.info("✅ [{}] {} locations récupérées avec succès", requestId, rentals.size());
+                return ResponseEntity.ok(Collections.singletonMap("rentals", rentals));
+            }
+        } catch (Exception e) {
+            log.error("❌ [{}] Erreur lors de la récupération des locations: {}", requestId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Erreur lors de la récupération des locations"));
         }
     }
 
@@ -88,13 +98,30 @@ public class RentalController {
     @Operation(summary = "Récupère une location par son ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Location trouvée"),
-        @ApiResponse(responseCode = "404", description = "Location non trouvée")
+        @ApiResponse(responseCode = "404", description = "Location non trouvée"),
+        @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<RentalDto> getRentalById(@PathVariable Long id) {
-        return rentalService.getRentalById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getRentalById(@PathVariable Long id) {
+        String requestId = UUID.randomUUID().toString();
+        log.info("📥 [{}] Réception d'une requête de récupération de la location avec l'ID: {}", requestId, id);
+        
+        try {
+            log.debug("🔍 [{}] Recherche de la location avec l'ID: {}", requestId, id);
+            Optional<RentalDto> rentalOpt = rentalService.getRentalById(id);
+            
+            if (rentalOpt.isPresent()) {
+                log.info("✅ [{}] Location trouvée avec l'ID: {}", requestId, id);
+                return ResponseEntity.ok(rentalOpt.get());
+            } else {
+                log.warn("⚠️ [{}] Location non trouvée avec l'ID: {}", requestId, id);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("❌ [{}] Erreur lors de la récupération de la location {}: {}", requestId, id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Erreur lors de la récupération de la location"));
+        }
     }
 
    /**
@@ -111,10 +138,12 @@ public class RentalController {
     @Operation(summary = "Crée une nouvelle location")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Location créée avec succès"),
-            @ApiResponse(responseCode = "400", description = "Erreur lors de la création de la location")
+            @ApiResponse(responseCode = "400", description = "Erreur lors de la création de la location"),
+            @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<RentalDto> createRental(
+    public ResponseEntity<?> createRental(
             @RequestParam("name") String name,
             @RequestParam("surface") BigDecimal surface,
             @RequestParam("price") BigDecimal price,
@@ -122,54 +151,77 @@ public class RentalController {
             @RequestParam(value = "picture", required = false) MultipartFile picture,
             Authentication authentication) {
 
-        log.info("🚀 createRental() - Début de la création d'une location");
+        String requestId = UUID.randomUUID().toString();
+        log.info("📥 [{}] Réception d'une requête de création de location: {}", requestId, name);
 
         // Vérifie que l'utilisateur est authentifié
         if (authentication == null || authentication.getName() == null) {
-            log.error("⛔ Erreur: Utilisateur non authentifié");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            log.error("⛔ [{}] Erreur: Utilisateur non authentifié", requestId);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("message", "Utilisateur non authentifié"));
         }
 
         String userEmail = authentication.getName();
-        User owner = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+        log.debug("👤 [{}] Recherche de l'utilisateur avec l'email: {}", requestId, userEmail);
+        
+        try {
+            // Récupération de l'utilisateur
+            User owner = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> {
+                        log.error("❌ [{}] Utilisateur non trouvé avec l'email: {}", requestId, userEmail);
+                        return new UserNotFoundException("Utilisateur non trouvé avec l'email: " + userEmail);
+                    });
+            log.info("👤 [{}] Utilisateur authentifié: {}, ID: {}", requestId, owner.getEmail(), owner.getId());
 
-        log.info("👤 Utilisateur authentifié: {}", owner.getEmail());
+            // Création du DTO
+            RentalDto rentalDto = new RentalDto();
+            rentalDto.setName(name);
+            rentalDto.setSurface(surface);
+            rentalDto.setPrice(price);
+            rentalDto.setDescription(description);
+            rentalDto.setOwnerId(owner.getId());
+            log.debug("📦 [{}] Données du RentalDto préparées: {}", requestId, rentalDto.getName());
 
-        // Création du DTO
-        RentalDto rentalDto = new RentalDto();
-        rentalDto.setName(name);
-        rentalDto.setSurface(surface);
-        rentalDto.setPrice(price);
-        rentalDto.setDescription(description);
-        rentalDto.setOwnerId(owner.getId());
-
-        log.info("📦 Données du RentalDto: {}", rentalDto);
-
-        // Gestion de l'image
-        if (picture != null && !picture.isEmpty()) {
-            try {
-                rentalDto.setPicture(fileStorageService.saveFile(picture));
-                log.info("📸 Image enregistrée avec succès");
-            } catch (IOException e) {
-                log.error("⚠️ Erreur lors de l'enregistrement de l'image", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            // Gestion de l'image
+            if (picture != null && !picture.isEmpty()) {
+                try {
+                    log.debug("🖼️ [{}] Traitement de l'image: {}, taille: {} octets", requestId, 
+                            picture.getOriginalFilename(), picture.getSize());
+                    String imagePath = fileStorageService.saveFile(picture);
+                    rentalDto.setPicture(imagePath);
+                    log.info("📸 [{}] Image enregistrée avec succès: {}", requestId, imagePath);
+                } catch (IOException e) {
+                    log.error("⚠️ [{}] Erreur lors de l'enregistrement de l'image: {}", requestId, e.getMessage(), e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Collections.singletonMap("message", "Erreur lors de l'enregistrement de l'image"));
+                }
+            } else {
+                log.warn("⚠️ [{}] Aucune image fournie pour la location", requestId);
             }
-        } else {
-            log.warn("⚠️ Aucune image fournie");
+
+            // Sauvegarde en base de données
+            log.debug("💾 [{}] Appel du service pour créer la location", requestId);
+            RentalDto createdRental = rentalService.createRental(rentalDto);
+
+            // Vérifie que createdRental n'est pas null
+            if (createdRental == null) {
+                log.error("⛔ [{}] Erreur: RentalService a retourné null", requestId);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.singletonMap("message", "Erreur lors de la création de la location"));
+            }
+
+            log.info("✅ [{}] Location créée avec succès, ID: {}", requestId, createdRental.getId());
+            return ResponseEntity.ok(createdRental);
+            
+        } catch (UserNotFoundException e) {
+            log.error("⛔ [{}] Utilisateur non trouvé: {}", requestId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (Exception e) {
+            log.error("❌ [{}] Erreur inattendue lors de la création de la location: {}", requestId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Erreur lors de la création de la location"));
         }
-
-        // Sauvegarde en base de données
-        RentalDto createdRental = rentalService.createRental(rentalDto);
-
-        // 🔥 Vérifie que createdRental n'est pas null
-        if (createdRental == null) {
-            log.error("⛔ Erreur: RentalService a retourné null");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        log.info("✅ Location créée avec succès: {}", createdRental);
-        return ResponseEntity.ok(createdRental);
     }
 
     /** 
@@ -187,10 +239,13 @@ public class RentalController {
     @Operation(summary = "Met à jour une location existante")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Location mise à jour avec succès"),
-            @ApiResponse(responseCode = "400", description = "Erreur lors de la mise à jour de la location")
+            @ApiResponse(responseCode = "400", description = "Erreur lors de la mise à jour de la location"),
+            @ApiResponse(responseCode = "401", description = "Utilisateur non authentifié"),
+            @ApiResponse(responseCode = "404", description = "Location non trouvée"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<RentalDto> updateRental(
+    public ResponseEntity<?> updateRental(
             @PathVariable Long id,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "surface", required = false) BigDecimal surface,
@@ -199,46 +254,99 @@ public class RentalController {
             @RequestParam(value = "picture", required = false) MultipartFile picture,
             Authentication authentication) {
     
-        log.info("🚀 updateRental() - Début de la mise à jour de la location id={}", id);
+        String requestId = UUID.randomUUID().toString();
+        log.info("📥 [{}] Réception d'une requête de mise à jour de la location avec l'ID: {}", requestId, id);
     
         // Vérifie que l'utilisateur est authentifié
         if (authentication == null || authentication.getName() == null) {
-            log.error("⛔ Erreur: Utilisateur non authentifié");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            log.error("⛔ [{}] Erreur: Utilisateur non authentifié", requestId);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("message", "Utilisateur non authentifié"));
         }
     
-        // Récupération de la location existante
-        Optional<RentalDto> existingRentalOpt = rentalService.getRentalById(id);
-        if (existingRentalOpt.isEmpty()) {
-            log.error("⛔ Location non trouvée avec l'id: {}", id);
-            return ResponseEntity.notFound().build();
-        }
+        String userEmail = authentication.getName();
+        log.debug("👤 [{}] Utilisateur authentifié: {}", requestId, userEmail);
         
-        RentalDto existingRental = existingRentalOpt.get();
-        
-        // Mise à jour des champs si fournis
-        if (name != null) existingRental.setName(name);
-        if (surface != null) existingRental.setSurface(surface);
-        if (price != null) existingRental.setPrice(price);
-        if (description != null) existingRental.setDescription(description);
-        
-        // Gestion de l'image
-        if (picture != null && !picture.isEmpty()) {
-            try {
-                String imagePath = fileStorageService.saveFile(picture);
-                existingRental.setPicture(imagePath);
-                log.info("📸 Nouvelle image enregistrée avec succès");
-            } catch (IOException e) {
-                log.error("⚠️ Erreur lors de l'enregistrement de la nouvelle image", e);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        try {
+            // Récupération de la location existante
+            log.debug("🔍 [{}] Recherche de la location avec l'ID: {}", requestId, id);
+            Optional<RentalDto> existingRentalOpt = rentalService.getRentalById(id);
+            
+            if (existingRentalOpt.isEmpty()) {
+                log.error("⛔ [{}] Location non trouvée avec l'ID: {}", requestId, id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Collections.singletonMap("message", "Location non trouvée avec l'ID: " + id));
             }
+            
+            RentalDto existingRental = existingRentalOpt.get();
+            log.debug("✅ [{}] Location trouvée, préparation des modifications", requestId);
+            
+            // Mise à jour des champs si fournis
+            boolean hasChanges = false;
+            
+            if (name != null && !name.equals(existingRental.getName())) {
+                log.trace("✏️ [{}] Mise à jour du nom: {} -> {}", requestId, existingRental.getName(), name);
+                existingRental.setName(name);
+                hasChanges = true;
+            }
+            
+            if (surface != null && !surface.equals(existingRental.getSurface())) {
+                log.trace("✏️ [{}] Mise à jour de la surface: {} -> {}", requestId, existingRental.getSurface(), surface);
+                existingRental.setSurface(surface);
+                hasChanges = true;
+            }
+            
+            if (price != null && !price.equals(existingRental.getPrice())) {
+                log.trace("✏️ [{}] Mise à jour du prix: {} -> {}", requestId, existingRental.getPrice(), price);
+                existingRental.setPrice(price);
+                hasChanges = true;
+            }
+            
+            if (description != null && !description.equals(existingRental.getDescription())) {
+                log.trace("✏️ [{}] Mise à jour de la description", requestId);
+                existingRental.setDescription(description);
+                hasChanges = true;
+            }
+            
+            // Gestion de l'image
+            if (picture != null && !picture.isEmpty()) {
+                try {
+                    log.debug("🖼️ [{}] Traitement de la nouvelle image: {}, taille: {} octets", requestId, 
+                            picture.getOriginalFilename(), picture.getSize());
+                    String imagePath = fileStorageService.saveFile(picture);
+                    existingRental.setPicture(imagePath);
+                    log.info("📸 [{}] Nouvelle image enregistrée avec succès: {}", requestId, imagePath);
+                    hasChanges = true;
+                } catch (IOException e) {
+                    log.error("⚠️ [{}] Erreur lors de l'enregistrement de la nouvelle image: {}", requestId, e.getMessage(), e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Collections.singletonMap("message", "Erreur lors de l'enregistrement de l'image"));
+                }
+            }
+            
+            if (!hasChanges) {
+                log.info("ℹ️ [{}] Aucune modification détectée pour la location ID: {}", requestId, id);
+                return ResponseEntity.ok(existingRental);
+            }
+            
+            // Sauvegarde en base de données
+            log.debug("💾 [{}] Appel du service pour mettre à jour la location", requestId);
+            RentalDto updatedRental = rentalService.updateRental(id, existingRental);
+            
+            if (updatedRental == null) {
+                log.error("⛔ [{}] Erreur: RentalService a retourné null lors de la mise à jour", requestId);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Collections.singletonMap("message", "Erreur lors de la mise à jour de la location"));
+            }
+            
+            log.info("✅ [{}] Location mise à jour avec succès, ID: {}", requestId, updatedRental.getId());
+            return ResponseEntity.ok(updatedRental);
+            
+        } catch (Exception e) {
+            log.error("❌ [{}] Erreur inattendue lors de la mise à jour de la location: {}", requestId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Erreur lors de la mise à jour de la location"));
         }
-        
-        // Sauvegarde en base de données
-        RentalDto updatedRental = rentalService.updateRental(id, existingRental);
-        log.info("✅ Location mise à jour avec succès: {}", updatedRental);
-        
-        return ResponseEntity.ok(updatedRental);
     }
 
     /** 
@@ -250,11 +358,34 @@ public class RentalController {
     @Operation(summary = "Supprime une location existante")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Location supprimée avec succès"),
-            @ApiResponse(responseCode = "404", description = "Location non trouvée")
+            @ApiResponse(responseCode = "404", description = "Location non trouvée"),
+            @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRental(@PathVariable Long id) {
-        rentalService.deleteRental(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteRental(@PathVariable Long id) {
+        String requestId = UUID.randomUUID().toString();
+        log.info("📥 [{}] Réception d'une requête de suppression de la location avec l'ID: {}", requestId, id);
+        
+        try {
+            // Vérifier d'abord que la location existe
+            log.debug("🔍 [{}] Vérification de l'existence de la location avec l'ID: {}", requestId, id);
+            Optional<RentalDto> existingRentalOpt = rentalService.getRentalById(id);
+            
+            if (existingRentalOpt.isEmpty()) {
+                log.warn("⚠️ [{}] Tentative de suppression d'une location inexistante avec l'ID: {}", requestId, id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            log.debug("🗑️ [{}] Suppression de la location avec l'ID: {}", requestId, id);
+            rentalService.deleteRental(id);
+            log.info("✅ [{}] Location supprimée avec succès, ID: {}", requestId, id);
+            
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("❌ [{}] Erreur lors de la suppression de la location avec l'ID: {}: {}", 
+                    requestId, id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "Erreur lors de la suppression de la location"));
+        }
     }
 }
