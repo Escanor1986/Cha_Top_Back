@@ -8,26 +8,26 @@
 ![Maven](https://img.shields.io/badge/Maven-Build-red?logo=apachemaven)
 ![Last Commit](https://img.shields.io/github/last-commit/Escanor1986/Cha_Top_Back)
 
-## 📑 Sommaire
-
-- [Présentation](#présentation)
-- [Technologies](#technologies)
-- [Installation rapide](#installation-rapide)
-- [Architecture](#architecture)
-- [Configuration détaillée](#configuration-détaillée)
-- [API Endpoints](#api-endpoints)
-- [Documentation](#documentation)
-- [Dépannage](#dépannage)
-- [Prochaines évolutions](#prochaines-évolutions)
-- [Contribution](#contribution)
-
 ## ✅ Tests
 
 Les tests d’intégration seront ajoutés prochainement.
 
 En attendant, les endpoints peuvent être testés directement via Swagger ou Postman.
 
-## Présentation 🚀
+## 📑 Sommaire
+
+- [Présentation](#-présentation)
+- [Technologies](#-technologies)
+- [Installation rapide](#-installation-rapide)
+- [Architecture](#-architecture)
+- [Configuration détaillée](#-configuration-détaillée)
+- [API Endpoints](#-api-endpoints)
+- [Documentation](#-documentation)
+- [Dépannage](#-dépannage)
+- [Prochaines évolutions](#-prochaines-évolutions)
+- [Contribution](#-contribution)
+
+## Présentation
 
 Chatop est une plateforme de mise en relation entre locataires et propriétaires sur la côte basque. Cette API REST sécurisée permet de gérer les locations saisonnières, les utilisateurs et les messages entre participants.
 
@@ -39,7 +39,7 @@ Le système offre les fonctionnalités suivantes :
 - Système de messagerie entre locataires et propriétaires
 - Stockage sécurisé des secrets avec HashiCorp Vault
 
-## Technologies ⚙️
+## Technologies
 
 L'application repose sur un stack technique moderne et robuste :
 
@@ -52,7 +52,7 @@ L'application repose sur un stack technique moderne et robuste :
 - **Documentation technique** : ([JavaDoc](http://localhost:8888/javadoc/))
 - **Health check** : ([Spring Actuator](http://localhost:3001/actuator))
 
-## Installation rapide 🏁
+## Installation rapide
 
 ### Prérequis
 
@@ -98,7 +98,7 @@ Vous devriez voir les conteneurs suivants actifs :
 - `chatop-vault` - Service HashiCorp Vault
 - `chatop-javadoc` - Serveur Nginx pour la documentation JavaDoc
 
-## Architecture 🏗️
+## Architecture
 
 ```sh
 📺chatop
@@ -175,7 +175,7 @@ Vous devriez voir les conteneurs suivants actifs :
                     └── logs/                   # Dossier pour stocker les fichiers de logs
 ```
 
-## Configuration détaillée ⚙️
+## Configuration détaillée
 
 ### Docker Compose
 
@@ -201,7 +201,7 @@ Le service `vault-init` configure automatiquement Vault avec les secrets nécess
 
 Tous les services sont connectés via un réseau dédié `chatop-network` qui isole les communications.
 
-## API Endpoints 🔌
+## API Endpoints
 
 | Méthode | Endpoint               | Description                                      | Authentification    |
 |---------|------------------------|--------------------------------------------------|---------------------|
@@ -228,7 +228,7 @@ curl -X POST "http://localhost:3001/api/rentals" \
   -F "picture=@/chemin/vers/image.jpg"
 ```
 
-## Documentation 📚
+## Documentation
 
 ### Swagger UI
 
@@ -254,7 +254,7 @@ http://localhost:8888/javadoc/
 
 Elle fournit des informations détaillées sur l'implémentation des classes, méthodes et interfaces.
 
-## Dépannage 🔧
+## Dépannage
 
 ### Problème lors du build Docker
 
@@ -297,7 +297,7 @@ Solution :
    docker exec -it chatop-mysql mysql -u chatopuser -p
    ```
 
-## Prochaines évolutions 🔮
+## Prochaines évolutions
 
 - ✅ Implémentation complète de l'authentification JWT
 - ✅ Gestion des locations avec upload d'images
@@ -309,7 +309,7 @@ Solution :
 - 🔜 Ajout de tests d'intégration complets
 - 🔜 CI/CD avec GitHub Actions
 
-## Contribution 👥
+## Contribution
 
 Les contributions sont les bienvenues ! Pour contribuer :
 
@@ -319,7 +319,3 @@ Les contributions sont les bienvenues ! Pour contribuer :
 4. Soumettez une pull request
 
 Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue ou à me contacter directement sur GitHub.
-
----
-
-#### *Développé avec ❤️ pour faciliter la location saisonnière sur la côte basque*
