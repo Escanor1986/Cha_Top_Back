@@ -81,6 +81,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", // Chemin racine pour rediriger vers Swagger UI
                                 "/healthcheck",
+                                "/actuator/**", // Chemin pour les endpoints Actuator à des fins de surveillance (à sécuriser en production)
                                 "/api/auth/**",
                                 "/api-docs/**",
                                 "/api-docs/swagger-config",
@@ -105,11 +106,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200, http://localhost:8888"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200, http://localhost:8888")); // localhost:4200 pour Angular, localhost:8888 pour JavaDocs
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setExposedHeaders(Arrays.asList("Content-Disposition")); // Expose l'en-tête Content-Disposition pour le téléchargement de fichiers (ref aux images dans uploads)
-        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

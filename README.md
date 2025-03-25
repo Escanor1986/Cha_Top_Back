@@ -42,8 +42,9 @@ L'application repose sur un stack technique moderne et robuste :
 - **Sécurité** : Spring Security + JWT
 - **Gestion des secrets** : Spring Cloud Vault avec HashiCorp Vault
 - **Conteneurisation** : Docker & Docker Compose
-- **Documentation API** : Swagger/OpenAPI 3
-- **Documentation technique** : JavaDoc
+- **Documentation API** : ([Swagger/OpenAPI 3](http://localhost:3001/swagger-ui/index.html))
+- **Documentation technique** : ([JavaDoc](http://localhost:8888/javadoc/))
+- **Health check** : ([Spring Actuator](http://localhost:3001/actuator))
 
 ## 🏁 Installation rapide
 

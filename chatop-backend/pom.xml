@@ -70,6 +70,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-vault-config</artifactId>
         </dependency>
+        <!-- Spring actuator pour le healthcheck de l'application -->
+        <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
 
         <!-- DevTools pour le rechargement automatique -->
         <dependency>
