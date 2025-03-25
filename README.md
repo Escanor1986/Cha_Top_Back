@@ -10,16 +10,22 @@
 
 ## 📑 Sommaire
 
-- [Présentation](#-présentation)
+- [Présentation](#présentation)
 - [Technologies](#technologies)
-- [Installation rapide](#-installation-rapide)
+- [Installation rapide](#installation-rapide)
 - [Architecture](#architecture)
 - [Configuration détaillée](#configuration-détaillée)
-- [API Endpoints](#-api-endpoints)
-- [Documentation](#-documentation)
-- [Dépannage](#-dépannage)
-- [Prochaines évolutions](#-prochaines-évolutions)
-- [Contribution](#-contribution)
+- [API Endpoints](#api-endpoints)
+- [Documentation](#documentation)
+- [Dépannage](#dépannage)
+- [Prochaines évolutions](#prochaines-évolutions)
+- [Contribution](#contribution)
+
+## ✅ Tests
+
+Les tests d’intégration seront ajoutés prochainement.
+
+En attendant, les endpoints peuvent être testés directement via Swagger ou Postman.
 
 ## 🚀 Présentation
 
