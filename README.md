@@ -27,7 +27,7 @@ Les tests d’intégration seront ajoutés prochainement.
 
 En attendant, les endpoints peuvent être testés directement via Swagger ou Postman.
 
-## 🚀 Présentation
+## Présentation 🚀
 
 Chatop est une plateforme de mise en relation entre locataires et propriétaires sur la côte basque. Cette API REST sécurisée permet de gérer les locations saisonnières, les utilisateurs et les messages entre participants.
 
@@ -39,7 +39,7 @@ Le système offre les fonctionnalités suivantes :
 - Système de messagerie entre locataires et propriétaires
 - Stockage sécurisé des secrets avec HashiCorp Vault
 
-## ⚙️ Technologies
+## Technologies ⚙️
 
 L'application repose sur un stack technique moderne et robuste :
 
@@ -52,7 +52,7 @@ L'application repose sur un stack technique moderne et robuste :
 - **Documentation technique** : ([JavaDoc](http://localhost:8888/javadoc/))
 - **Health check** : ([Spring Actuator](http://localhost:3001/actuator))
 
-## 🏁 Installation rapide
+## Installation rapide 🏁
 
 ### Prérequis
 
@@ -98,7 +98,7 @@ Vous devriez voir les conteneurs suivants actifs :
 - `chatop-vault` - Service HashiCorp Vault
 - `chatop-javadoc` - Serveur Nginx pour la documentation JavaDoc
 
-## 🏗️ Architecture
+## Architecture 🏗️
 
 ```sh
 📺chatop
@@ -175,7 +175,7 @@ Vous devriez voir les conteneurs suivants actifs :
                     └── logs/                   # Dossier pour stocker les fichiers de logs
 ```
 
-## ⚙️ Configuration détaillée
+## Configuration détaillée ⚙️
 
 ### Docker Compose
 
@@ -201,7 +201,7 @@ Le service `vault-init` configure automatiquement Vault avec les secrets nécess
 
 Tous les services sont connectés via un réseau dédié `chatop-network` qui isole les communications.
 
-## 🔌 API Endpoints
+## API Endpoints 🔌
 
 | Méthode | Endpoint               | Description                                      | Authentification    |
 |---------|------------------------|--------------------------------------------------|---------------------|
@@ -228,7 +228,7 @@ curl -X POST "http://localhost:3001/api/rentals" \
   -F "picture=@/chemin/vers/image.jpg"
 ```
 
-## 📚 Documentation
+## Documentation 📚
 
 ### Swagger UI
 
@@ -254,7 +254,7 @@ http://localhost:8888/javadoc/
 
 Elle fournit des informations détaillées sur l'implémentation des classes, méthodes et interfaces.
 
-## 🔧 Dépannage
+## Dépannage 🔧
 
 ### Problème lors du build Docker
 
@@ -297,7 +297,7 @@ Solution :
    docker exec -it chatop-mysql mysql -u chatopuser -p
    ```
 
-## 🔮 Prochaines évolutions
+## Prochaines évolutions 🔮
 
 - ✅ Implémentation complète de l'authentification JWT
 - ✅ Gestion des locations avec upload d'images
@@ -305,10 +305,11 @@ Solution :
 - ✅ Sécurisation des données sensibles avec Vault
 - ✅ Documentation complète (JavaDoc, Swagger)
 - 🔜 Configuration Vault pour environnement de production
+- 🔜 Configuration Actuator pour environnement de production
 - 🔜 Ajout de tests d'intégration complets
 - 🔜 CI/CD avec GitHub Actions
 
-## 👥 Contribution
+## Contribution 👥
 
 Les contributions sont les bienvenues ! Pour contribuer :
 
