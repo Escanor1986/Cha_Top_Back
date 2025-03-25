@@ -16,16 +16,16 @@ En attendant, les endpoints peuvent être testés directement via Swagger ou Pos
 
 ## 📑 Sommaire
 
-- [Présentation](#présentation-)
-- [Technologies](#technologies-)
-- [Installation rapide](#installation-rapide-)
-- [Architecture](#architecture-)
-- [Configuration détaillée](#configuration-détaillée-)
-- [API Endpoints](#api-endpoints-)
-- [Documentation](#documentation-)
-- [Dépannage](#dépannage-)
-- [Prochaines évolutions](#prochaines-évolutions-)
-- [Contribution](#contribution-)
+- [Présentation](#présentation)
+- [Technologies](#technologies)
+- [Installation rapide](#installation-rapide)
+- [Architecture](#architecture)
+- [Configuration détaillée](#configuration-détaillée)
+- [API Endpoints](#api-endpoints)
+- [Documentation](#documentation)
+- [Dépannage](#dépannage)
+- [Prochaines évolutions](#prochaines-évolutions)
+- [Contribution](#contribution)
 
 ## Présentation
 
